@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFrameworkVersion>net9.0</TargetFrameworkVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <LangVersion>latest</LangVersion>
+    <RestoreAdditionalProjectSources>
+      https://www.myget.org/F/apollo3zehn-dev/api/v3/index.json
+    </RestoreAdditionalProjectSources>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+  </PropertyGroup>
+
+</Project>

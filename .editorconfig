@@ -1,0 +1,58 @@
+# How to apply single rule:
+# Run dotnet format --diagnostics XXXX --severity info
+
+# How to apply all rules:
+# Run dotnet format --severity error/info/warn/
+
+[*]
+trim_trailing_whitespace = true
+
+[*.cs]
+# "run cleanup": https://betterprogramming.pub/enforce-net-code-style-with-editorconfig-d2f0d79091ac
+# TODO: build real editorconfig file: https://github.com/dotnet/roslyn/blob/main/.editorconfig 
+
+# Prefer var
+csharp_style_var_for_built_in_types = false
+csharp_style_var_when_type_is_apparent = true
+csharp_style_var_elsewhere = true
+dotnet_diagnostic.IDE0007.severity = warning
+
+# Make field
+dotnet_diagnostic.IDE0044.severity = warning
+
+# Use file scoped namespace declarations
+dotnet_diagnostic.IDE0161.severity = error
+csharp_style_namespace_declarations = file_scoped
+
+# Collection initialization can be simplified
+dotnet_diagnostic.IDE0300.severity = warning
+
+# Enable naming rule violation errors on build (alternative: dotnet_analyzer_diagnostic.category-Style.severity = error)
+dotnet_diagnostic.IDE1006.severity = error
+
+#########################
+# example: https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/naming-rules#example-private-instance-fields-with-underscore
+#########################
+
+# Define the 'private_fields' symbol group:
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+# Define the 'private_static_fields' symbol group
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+# Define the 'underscored' naming style
+dotnet_naming_style.underscored.capitalization = camel_case
+dotnet_naming_style.underscored.required_prefix = _
+
+# Define the 'private_fields_underscored' naming rule
+dotnet_naming_rule.private_fields_underscored.symbols = private_fields
+dotnet_naming_rule.private_fields_underscored.style = underscored
+dotnet_naming_rule.private_fields_underscored.severity = error
+
+# Define the 'private_static_fields_none' naming rule
+dotnet_naming_rule.private_static_fields_none.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_none.style = underscored
+dotnet_naming_rule.private_static_fields_none.severity = none
