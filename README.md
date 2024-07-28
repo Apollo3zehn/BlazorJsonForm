@@ -1,3 +1,3 @@
 # BlazorJsonForm
 
-Build Blazor forms from JSON Schema
+Build Blazor forms from JSON Schema using MudBlazor.
