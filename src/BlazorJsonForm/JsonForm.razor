@@ -44,24 +44,24 @@
         builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin: 1rem;");
 
         // Title
-        builder.OpenElement(sequence++, "MudText");
-        builder.AddAttribute(sequence++, "Typo", Typo.h5);
-        builder.AddContent(sequence++, title);
+        builder.OpenComponent<MudText>(sequence++);
+        builder.AddAttribute(sequence++, "Typo", Typo.h6);
+
+        var capturedSequence = sequence++;
+        builder.AddAttribute(sequence++, "ChildContent", new RenderFragment(builder => builder.AddContent(capturedSequence, title)));
         builder.CloseElement();
 
         // Properties
         foreach (var entry in properties)
         {
             var (name, property) = entry;
-            Console.WriteLine($"Processing property {name} = {property.Type}");
-
             var label = property.Description ?? name;
 
             switch (property.Type)
             {
                 case JsonObjectType.Integer:
 
-                    builder.OpenComponent(sequence++, typeof(MudNumericField<int>));
+                    builder.OpenComponent<MudNumericField<int>>(sequence++);
                     builder.AddAttribute(sequence++, "Label", label);
                     //builder.AddComponentParameter(sequence++, "Min", 0);
                     //builder.AddComponentParameter(sequence++, "Max", 10);
@@ -73,7 +73,7 @@
 
                     if (property.Format == "double")
                     {
-                        builder.OpenComponent(sequence++, typeof(MudNumericField<double>));
+                        builder.OpenComponent<MudNumericField<double>>(sequence++);
                         builder.AddAttribute(sequence++, "Label", label);
                         builder.CloseComponent();
                     }
@@ -82,7 +82,7 @@
 
                 case JsonObjectType.String:
 
-                    builder.OpenComponent(sequence++, typeof(MudTextField<string>));
+                    builder.OpenComponent<MudTextField<string>>(sequence++);
                     builder.AddAttribute(sequence++, "Label", label);
                     builder.CloseComponent();
 
