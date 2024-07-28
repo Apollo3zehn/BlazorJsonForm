@@ -1,3 +1,29 @@
 ﻿@page "/"
+@using System.Text.Json.Schema
+@using System.Text.Json.Nodes
+@using System.Text.Json
+@using NJsonSchema
 
-<JsonForm></JsonForm>
+<div style="display: flex; gap: 1rem; margin: 1rem;">
+    <div style="flex: 1">
+        <JsonForm Schema="_nswagSchema">
+        </JsonForm>
+    </div>
+
+    <div style="flex: 1; font-family: 'Courier New', Courier, monospace; font-size: x-small;">
+        <span>
+            @(
+                (MarkupString)(
+                    _nswagSchema
+                        .ToJson()
+                        .Replace(" ", "&nbsp;")
+                        .Replace("\n", "<br />")
+                )
+            )
+        </span>
+    </div>
+</div>
+
+@code {
+    JsonSchema _nswagSchema = JsonSchema.FromType<MyTestType>();
+}

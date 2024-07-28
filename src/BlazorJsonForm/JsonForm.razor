@@ -1,3 +1,113 @@
-﻿<div class="my-component">
-    This component is defined in the <strong>BlazorJsonForm</strong> library.
+﻿@using Microsoft.AspNetCore.Components.Rendering
+@using NJsonSchema
+
+<div style="display: flex; flex-direction: column;">
+    @_renderFragement
 </div>
+
+@code {
+
+    private RenderFragment _renderFragement = default!;
+
+    /// <summary>
+    /// The JSON schema to create a form for.
+    /// </summary>
+    [Parameter]
+    public JsonSchema Schema { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        var sequence = 0;
+
+        if (Schema.Type != JsonObjectType.Object)
+            throw new Exception("JsonForm only supports objects as root type");
+
+        _renderFragement = builder =>
+        {
+            RenderObject(
+                Schema.Title, 
+                Schema.ActualProperties, 
+                builder, 
+                ref sequence
+            );        
+        };
+    }
+
+    private void RenderObject(
+        string? title,
+        IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
+        RenderTreeBuilder builder,
+        ref int sequence)
+    {
+        // Container
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin: 1rem;");
+
+        // Title
+        builder.OpenElement(sequence++, "MudText");
+        builder.AddAttribute(sequence++, "Typo", Typo.h5);
+        builder.AddContent(sequence++, title);
+        builder.CloseElement();
+
+        // Properties
+        foreach (var entry in properties)
+        {
+            var (name, property) = entry;
+            Console.WriteLine($"Processing property {name} = {property.Type}");
+
+            var label = property.Description ?? name;
+
+            switch (property.Type)
+            {
+                case JsonObjectType.Integer:
+
+                    builder.OpenComponent(sequence++, typeof(MudNumericField<int>));
+                    builder.AddAttribute(sequence++, "Label", label);
+                    //builder.AddComponentParameter(sequence++, "Min", 0);
+                    //builder.AddComponentParameter(sequence++, "Max", 10);
+                    builder.CloseComponent();
+
+                    break;
+
+                case JsonObjectType.Number:
+
+                    if (property.Format == "double")
+                    {
+                        builder.OpenComponent(sequence++, typeof(MudNumericField<double>));
+                        builder.AddAttribute(sequence++, "Label", label);
+                        builder.CloseComponent();
+                    }
+
+                    break;
+
+                case JsonObjectType.String:
+
+                    builder.OpenComponent(sequence++, typeof(MudTextField<string>));
+                    builder.AddAttribute(sequence++, "Label", label);
+                    builder.CloseComponent();
+
+                    break;
+
+                case JsonObjectType.None:
+
+                    if (
+                        property.OneOf.Count == 1 && 
+                        property.OneOf.First().ActualSchema.Type == JsonObjectType.Object)
+                    {
+                        var schema = property.ActualSchema;
+
+                        RenderObject(
+                            label, 
+                            schema.ActualProperties, 
+                            builder, 
+                            ref sequence
+                        );
+                    }
+
+                    break;
+            }
+        }
+
+        builder.CloseElement();
+    }
+}
