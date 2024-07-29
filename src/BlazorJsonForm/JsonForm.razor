@@ -19,18 +19,119 @@
     {
         var sequence = 0;
 
-        if (Schema.Type != JsonObjectType.Object)
-            throw new Exception("JsonForm only supports objects as root type");
-
         _renderFragement = builder =>
         {
-            RenderObject(
-                Schema.Title, 
-                Schema.ActualProperties, 
+            Render(
+                "Rocket settings", 
+                Schema,
                 builder, 
                 ref sequence
-            );        
+            );
         };
+    }
+
+    private void Render(
+        string label, 
+        JsonSchema schema, 
+        RenderTreeBuilder builder, 
+        ref int sequence
+    )
+    {
+        switch (schema.Type)
+        {
+            case JsonObjectType.Integer:
+
+                if (schema.Enumeration.Any())
+                {
+                    builder.OpenComponent<MudSelect<string>>(sequence++);
+                    builder.AddComponentParameter(sequence++, "Label", label);
+
+                    builder.AddComponentParameter(
+                        sequence++,
+                        "ChildContent",
+                        new RenderFragment(builder =>
+                        {
+                            var sequence = 0;
+
+                            for (int i = 0; i < schema.EnumerationNames.Count; i++)
+                            {
+                                builder.OpenComponent<MudSelectItem<string>>(sequence++);
+                                builder.AddComponentParameter(sequence++, "Value", schema.EnumerationNames[i]);
+                                builder.CloseComponent();
+                            }
+                        })
+                    );
+
+                    builder.CloseComponent();
+                }
+                
+                else
+                {
+                    builder.OpenComponent<MudNumericField<int>>(sequence++);
+                    builder.AddComponentParameter(sequence++, "Label", label);
+                    //builder.AddComponentParameter(sequence++, "Min", 0);
+                    //builder.AddComponentParameter(sequence++, "Max", 10);
+                    builder.CloseComponent();
+                }
+
+                break;
+
+            case JsonObjectType.Number:
+
+                if (schema.Format == "double")
+                {
+                    builder.OpenComponent<MudNumericField<double>>(sequence++);
+                    builder.AddComponentParameter(sequence++, "Label", label);
+                    builder.CloseComponent();
+                }
+
+                break;
+
+            case JsonObjectType.String:
+
+                builder.OpenComponent<MudTextField<string>>(sequence++);
+                builder.AddComponentParameter(sequence++, "Label", label);
+                builder.CloseComponent();
+
+                break;
+
+            case JsonObjectType.Object:
+
+                RenderObject(
+                    label, 
+                    schema.ActualProperties, 
+                    builder, 
+                    ref sequence
+                );
+
+                break;
+
+            case JsonObjectType.None:
+
+                if (
+                    schema.OneOf.Count == 1)
+                {
+                    Render(
+                        label,
+                        schema.ActualSchema, 
+                        builder, 
+                        ref sequence
+                    );
+                }
+
+                break;
+
+            case JsonObjectType.Array:
+
+                RenderArray(
+                    label,
+                    schema,
+                    builder,
+                    ref sequence
+                );
+
+                break;
+        }
     }
 
     private void RenderObject(
@@ -41,7 +142,36 @@
     {
         // Container
         builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin: 1rem;");
+        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;");
+
+        // Title
+        builder.OpenComponent<MudText>(sequence++);
+        builder.AddAttribute(sequence++, "Typo", Typo.h6);
+
+        builder.AddAttribute(sequence++, "ChildContent", new RenderFragment(builder => builder.AddContent(1, title)));
+        builder.CloseElement();
+
+        // Properties
+        foreach (var entry in properties)
+        {
+            var (name, schema) = entry;
+            var label = schema.Description ?? name;
+
+            Render(label, schema, builder, ref sequence);
+        }
+
+        builder.CloseElement();
+    }
+
+    private void RenderArray(
+        string? title,
+        JsonSchema schema,
+        RenderTreeBuilder builder,
+        ref int sequence)
+    {
+        // Container
+        builder.OpenElement(sequence++, "div");
+        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;");
 
         // Title
         builder.OpenComponent<MudText>(sequence++);
@@ -51,61 +181,11 @@
         builder.AddAttribute(sequence++, "ChildContent", new RenderFragment(builder => builder.AddContent(capturedSequence, title)));
         builder.CloseElement();
 
-        // Properties
-        foreach (var entry in properties)
+        // 'Add' button
         {
-            var (name, property) = entry;
-            var label = property.Description ?? name;
-
-            switch (property.Type)
-            {
-                case JsonObjectType.Integer:
-
-                    builder.OpenComponent<MudNumericField<int>>(sequence++);
-                    builder.AddAttribute(sequence++, "Label", label);
-                    //builder.AddComponentParameter(sequence++, "Min", 0);
-                    //builder.AddComponentParameter(sequence++, "Max", 10);
-                    builder.CloseComponent();
-
-                    break;
-
-                case JsonObjectType.Number:
-
-                    if (property.Format == "double")
-                    {
-                        builder.OpenComponent<MudNumericField<double>>(sequence++);
-                        builder.AddAttribute(sequence++, "Label", label);
-                        builder.CloseComponent();
-                    }
-
-                    break;
-
-                case JsonObjectType.String:
-
-                    builder.OpenComponent<MudTextField<string>>(sequence++);
-                    builder.AddAttribute(sequence++, "Label", label);
-                    builder.CloseComponent();
-
-                    break;
-
-                case JsonObjectType.None:
-
-                    if (
-                        property.OneOf.Count == 1 && 
-                        property.OneOf.First().ActualSchema.Type == JsonObjectType.Object)
-                    {
-                        var schema = property.ActualSchema;
-
-                        RenderObject(
-                            label, 
-                            schema.ActualProperties, 
-                            builder, 
-                            ref sequence
-                        );
-                    }
-
-                    break;
-            }
+            builder.OpenComponent<MudIconButton>(sequence++);
+            builder.AddComponentParameter(sequence++, "Icon", Icons.Material.Filled.Add);
+            builder.CloseComponent();
         }
 
         builder.CloseElement();

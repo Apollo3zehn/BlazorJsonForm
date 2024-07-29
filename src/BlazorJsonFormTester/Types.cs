@@ -1,46 +1,46 @@
 /// <summary>
-/// This is my test enum.
+/// The rocket status
 /// </summary>
-public enum MyTestEnum
+public enum RocketStatus
 {
     /// <summary>
-    /// This is option A.
+    /// Ready to launch
     /// </summary>
-    A = 1,
+    Ready,
 
     /// <summary>
-    /// This is option B.
+    /// Ignition
     /// </summary>
-    B = 2,
+    Ignition,
 
     /// <summary>
-    /// This is option C.
+    /// Flight
     /// </summary>
-    C = 3
+    Flight
 }
 
 /// <summary>
-/// This is my nested test type.
+/// A rocket payload
 /// </summary>
-/// <param name="Integer">An integer.</param>
-public record MyNestedTestType(
-    int Integer
+/// <param name="Weight">Weight in kg</param>
+public record Payload(
+    double Weight
 );
 
 /// <summary>
-/// This is my test type.
+/// A rocket
 /// </summary>
-/// <param name="Integer">A fixed-point number.</param>
-/// <param name="Double">A floating-point number.</param>
-/// <param name="Text">A text.</param>
-/// <param name="Enum">An enumeration.</param>
-/// <param name="Object">An object.</param>
-/// <param name="Array">An array.</param>
-public record MyTestType(
-    int Integer,
-    double Double,
-    string Text,
-    MyTestEnum Enum,
-    MyNestedTestType Object,
-    MyNestedTestType[] Array
+/// <param name="EngineCount">Number of engines</param>
+/// <param name="Fuel">Amount of fuel in L</param>
+/// <param name="Message">Message from mankind to the outer space</param>
+/// <param name="Status">Rocket status</param>
+/// <param name="MainPayload">Main payload</param>
+/// <param name="AdditionalPayloads">Additional payloads</param>
+public record Rocket(
+    int EngineCount,
+    double Fuel,
+    string Message,
+    RocketStatus Status,
+    Payload MainPayload,
+    Payload[] AdditionalPayloads
 );

@@ -6,7 +6,7 @@
 
 <div style="display: flex; gap: 1rem; margin: 1rem;">
     <div style="flex: 1">
-        <JsonForm Schema="_nswagSchema">
+        <JsonForm Schema="_schema">
         </JsonForm>
     </div>
 
@@ -14,7 +14,7 @@
         <span>
             @(
                 (MarkupString)(
-                    _nswagSchema
+                    _schema
                         .ToJson()
                         .Replace(" ", "&nbsp;")
                         .Replace("\n", "<br />")
@@ -25,5 +25,5 @@
 </div>
 
 @code {
-    JsonSchema _nswagSchema = JsonSchema.FromType<MyTestType>();
+    JsonSchema _schema = JsonSchema.FromType<Rocket>();
 }
