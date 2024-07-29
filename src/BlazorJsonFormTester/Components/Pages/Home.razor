@@ -6,11 +6,30 @@
 
 <div style="display: flex; gap: 1rem; margin: 1rem;">
     <div style="flex: 1">
-        <JsonForm Schema="_schema">
-        </JsonForm>
+        <MudText Typo="Typo.h4" Style="margin-bottom: 1rem;">Form</MudText>
+
+        <JsonForm
+            Schema="_schema"
+            @bind-Data="_data" />
     </div>
 
     <div style="flex: 1; font-family: 'Courier New', Courier, monospace; font-size: x-small;">
+        <MudText Typo="Typo.h4" Style="margin-bottom: 1rem;">Data</MudText>
+
+        <span>
+            @(
+                (MarkupString)(
+                    JsonSerializer.Serialize(_data, new JsonSerializerOptions { WriteIndented = true })
+                        .Replace(" ", "&nbsp;")
+                        .Replace("\n", "<br />")
+                )
+            )
+        </span>
+    </div>
+
+    <div style="flex: 1; font-family: 'Courier New', Courier, monospace; font-size: x-small;">
+        <MudText Typo="Typo.h4" Style="margin-bottom: 1rem;">Schema</MudText>
+
         <span>
             @(
                 (MarkupString)(
@@ -25,5 +44,7 @@
 </div>
 
 @code {
+    JsonNode? _data;
+
     JsonSchema _schema = JsonSchema.FromType<Rocket>();
 }

@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Components.Rendering
 @using NJsonSchema
+@using System.Text.Json.Nodes
+@using System.Text.Json
 
 <div style="display: flex; flex-direction: column;">
     @_renderFragement
@@ -15,24 +17,46 @@
     [Parameter]
     public JsonSchema Schema { get; set; } = default!;
 
+    /// <summary>
+    /// The JSON data store.
+    /// </summary>
+    [Parameter]
+    public JsonNode? Data { get; set; } = default!;
+
+    /// <summary>
+    /// The JSON data store event callback.
+    /// </summary>
+    [Parameter]
+    public EventCallback<JsonNode?> DataChanged { get; set; }
+
     protected override void OnInitialized()
     {
         var sequence = 0;
 
         _renderFragement = builder =>
         {
-            Render(
+            var oldData = Data;
+
+            Data = Render(
                 "Rocket settings", 
                 Schema,
-                builder, 
+                Data,
+                builder,
                 ref sequence
             );
+
+            if (JsonSerializer.Serialize(oldData) != JsonSerializer.Serialize(Data) && 
+                DataChanged.HasDelegate)
+            {
+                DataChanged.InvokeAsync(Data);
+            }
         };
     }
 
-    private void Render(
+    private JsonNode? Render(
         string label, 
         JsonSchema schema, 
+        JsonNode? data,
         RenderTreeBuilder builder, 
         ref int sequence
     )
@@ -43,6 +67,9 @@
 
                 if (schema.Enumeration.Any())
                 {
+                    if (data is null)
+                        data = string.Empty;
+
                     builder.OpenComponent<MudSelect<string>>(sequence++);
                     builder.AddComponentParameter(sequence++, "Label", label);
 
@@ -64,9 +91,12 @@
 
                     builder.CloseComponent();
                 }
-                
+
                 else
                 {
+                    if (data is null)
+                        data = 0;
+
                     builder.OpenComponent<MudNumericField<int>>(sequence++);
                     builder.AddComponentParameter(sequence++, "Label", label);
                     //builder.AddComponentParameter(sequence++, "Min", 0);
@@ -80,14 +110,53 @@
 
                 if (schema.Format == "double")
                 {
+                    if (data is null)
+                        data = 0.0;
+
                     builder.OpenComponent<MudNumericField<double>>(sequence++);
                     builder.AddComponentParameter(sequence++, "Label", label);
                     builder.CloseComponent();
                 }
 
+                else
+                {
+                    throw new Exception("schema.Format != \"double\" is not (yet) supported");
+                }
+
                 break;
 
             case JsonObjectType.String:
+
+                if (data is null)
+                    data = string.Empty;
+
+                builder.OpenComponent<MudTextField<string>>(sequence++);
+                builder.AddComponentParameter(sequence++, "Label", label);
+                builder.AddComponentParameter(sequence++, "Value", data.GetValue<string>());
+
+                builder.AddComponentParameter(
+                    sequence++, 
+                    "ValueChanged", 
+                    EventCallback.Factory.Create<string>(
+                        this,
+                        value => 
+                        {
+                            data.ReplaceWith(value);
+
+                            if (DataChanged.HasDelegate)
+                                DataChanged.InvokeAsync(Data);
+                        }
+                    )
+                );
+
+                builder.CloseComponent();
+
+                break;
+
+            case JsonObjectType.String | JsonObjectType.Null:
+
+                if (data is null)
+                    data = default;
 
                 builder.OpenComponent<MudTextField<string>>(sequence++);
                 builder.AddComponentParameter(sequence++, "Label", label);
@@ -97,9 +166,13 @@
 
             case JsonObjectType.Object:
 
+                if (data is null)
+                    data = new JsonObject();
+
                 RenderObject(
                     label, 
-                    schema.ActualProperties, 
+                    schema.ActualProperties,
+                    (JsonObject)data,
                     builder, 
                     ref sequence
                 );
@@ -108,35 +181,50 @@
 
             case JsonObjectType.None:
 
-                if (
-                    schema.OneOf.Count == 1)
+                if (schema.OneOf.Count == 1)
                 {
-                    Render(
+                    data = Render(
                         label,
-                        schema.ActualSchema, 
+                        schema.ActualSchema,
+                        data,
                         builder, 
                         ref sequence
                     );
+                }
+
+                else
+                {
+                    throw new Exception("schema.OneOf.Count != 1 is not (yet) supported");
                 }
 
                 break;
 
             case JsonObjectType.Array:
 
+                if (data is null)
+                    data = new JsonArray();
+
                 RenderArray(
                     label,
                     schema,
+                    (JsonArray)data,
                     builder,
                     ref sequence
                 );
 
                 break;
+
+            default:
+                throw new Exception($"{schema.Type} is not (yet) supported");
         }
+
+        return data;
     }
 
     private void RenderObject(
         string? title,
         IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
+        JsonObject data,
         RenderTreeBuilder builder,
         ref int sequence)
     {
@@ -154,10 +242,18 @@
         // Properties
         foreach (var entry in properties)
         {
-            var (name, schema) = entry;
-            var label = schema.Description ?? name;
+            var (name, propertySchema) = entry;
+            var label = propertySchema.Description ?? name;
 
-            Render(label, schema, builder, ref sequence);
+            data.TryGetPropertyValue(name, out var propertyData);
+
+            data[name] = Render(
+                label, 
+                propertySchema,
+                propertyData,
+                builder, 
+                ref sequence
+            );
         }
 
         builder.CloseElement();
@@ -166,6 +262,7 @@
     private void RenderArray(
         string? title,
         JsonSchema schema,
+        JsonArray data,
         RenderTreeBuilder builder,
         ref int sequence)
     {

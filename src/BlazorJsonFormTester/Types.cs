@@ -33,6 +33,7 @@ public record Payload(
 /// <param name="EngineCount">Number of engines</param>
 /// <param name="Fuel">Amount of fuel in L</param>
 /// <param name="Message">Message from mankind to the outer space</param>
+/// <param name="Manual">An optional manual about how to fly in space</param>
 /// <param name="Status">Rocket status</param>
 /// <param name="MainPayload">Main payload</param>
 /// <param name="AdditionalPayloads">Additional payloads</param>
@@ -40,6 +41,7 @@ public record Rocket(
     int EngineCount,
     double Fuel,
     string Message,
+    string? Manual,
     RocketStatus Status,
     Payload MainPayload,
     Payload[] AdditionalPayloads
