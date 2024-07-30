@@ -32,6 +32,7 @@ public record Payload(
 /// </summary>
 /// <param name="EngineCount">Number of engines</param>
 /// <param name="Fuel">Amount of fuel in L</param>
+/// <param name="EnableTelemetry">Enable telemetry</param>
 /// <param name="Message">Message from mankind to the outer space</param>
 /// <param name="Status">Rocket status</param>
 /// <param name="MainPayload">Main payload</param>
@@ -39,6 +40,7 @@ public record Payload(
 public record Rocket(
     int EngineCount,
     double Fuel,
+    bool EnableTelemetry,
     string Message,
     RocketStatus Status,
     Payload MainPayload,

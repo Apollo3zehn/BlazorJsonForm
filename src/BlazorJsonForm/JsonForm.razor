@@ -31,8 +31,6 @@
 
     protected override void OnInitialized()
     {
-        var sequence = 0;
-
         _renderFragement = builder =>
         {
             var oldData = Data;
@@ -42,7 +40,7 @@
                 Schema,
                 Data,
                 builder,
-                ref sequence
+                isTopLevel: true
             );
 
             if (JsonSerializer.Serialize(oldData) != JsonSerializer.Serialize(Data) && 
@@ -58,51 +56,53 @@
         JsonSchema schema, 
         JsonNode? data,
         RenderTreeBuilder builder, 
-        ref int sequence
+        bool isTopLevel
     )
     {
+        var __builder = builder;
+
         switch (schema.Type)
         {
             case JsonObjectType.Integer:
 
+                if (data is null)
+                    data = 0;
+
                 if (schema.Enumeration.Any())
                 {
-                    if (data is null)
-                        data = string.Empty;
+                    var valueNamePairs = schema
+                        .Enumeration
+                        .Cast<int>()
+                        .Zip(schema.EnumerationNames)
+                        .ToList();
 
-                    builder.OpenComponent<MudSelect<string>>(sequence++);
-                    builder.AddComponentParameter(sequence++, "Label", label);
+                    <MudSelect 
+                        T="int" 
+                        Label="@label"
+                        ToStringFunc="item => valueNamePairs.First(x => x.First == item).Second"
+                        @bind-Value:get="data.GetValue<int>()"
+                        @bind-Value:set="value => SetValue(value, data)">
 
-                    builder.AddComponentParameter(
-                        sequence++,
-                        "ChildContent",
-                        new RenderFragment(builder =>
+                        @foreach (var valueNamePair in valueNamePairs)
                         {
-                            var sequence = 0;
+                            <MudSelectItem 
+                                T="int"
+                                Value="valueNamePair.First" />
+                        }
 
-                            for (int i = 0; i < schema.EnumerationNames.Count; i++)
-                            {
-                                builder.OpenComponent<MudSelectItem<string>>(sequence++);
-                                builder.AddComponentParameter(sequence++, "Value", schema.EnumerationNames[i]);
-                                builder.CloseComponent();
-                            }
-                        })
-                    );
-
-                    builder.CloseComponent();
+                    </MudSelect>
                 }
 
                 else
                 {
-                    if (data is null)
-                        data = 0;
+                    <MudNumericField 
+                        T="int" 
+                        Label="@label"
+                        @bind-Value:get="data.GetValue<int>()"
+                        @bind-Value:set="value => SetValue(value, data)" />
 
-                    builder.OpenComponent<MudNumericField<int>>(sequence++);
-                    builder.AddComponentParameter(sequence++, "Label", label);
                     //builder.AddComponentParameter(sequence++, "Min", 0);
                     //builder.AddComponentParameter(sequence++, "Max", 10);
-                    CreateBinding<int>(data, builder, ref sequence);
-                    builder.CloseComponent();
                 }
 
                 break;
@@ -114,10 +114,11 @@
                     if (data is null)
                         data = 0.0;
 
-                    builder.OpenComponent<MudNumericField<double>>(sequence++);
-                    builder.AddComponentParameter(sequence++, "Label", label);
-                    CreateBinding<double>(data, builder, ref sequence);
-                    builder.CloseComponent();
+                    <MudNumericField 
+                        T="double" 
+                        Label="@label"
+                        @bind-Value:get="data.GetValue<double>()"
+                        @bind-Value:set="value => SetValue(value, data)" />
                 }
 
                 else
@@ -127,15 +128,28 @@
 
                 break;
 
+            case JsonObjectType.Boolean:
+
+                if (data is null)
+                    data = false;
+
+                <MudSwitch 
+                    Label="@label"
+                    @bind-Value:get="data.GetValue<bool>()"
+                    @bind-Value:set="value => SetValue(value, data)" />
+
+                break;
+
             case JsonObjectType.String:
 
                 if (data is null)
                     data = string.Empty;
 
-                builder.OpenComponent<MudTextField<string>>(sequence++);
-                builder.AddComponentParameter(sequence++, "Label", label);
-                CreateBinding<string>(data, builder, ref sequence);
-                builder.CloseComponent();
+                <MudTextField 
+                        T="string" 
+                        Label="@label"
+                        @bind-Value:get="data.GetValue<string>()"
+                @bind-Value:set="value => SetValue(value, data)" />
 
                 break;
 
@@ -144,9 +158,9 @@
                 if (data is null)
                     data = default;
 
-                builder.OpenComponent<MudTextField<string>>(sequence++);
+                @* builder.OpenComponent<MudTextField<string>>(sequence++);
                 builder.AddComponentParameter(sequence++, "Label", label);
-                builder.CloseComponent();
+                builder.CloseComponent(); *@
 
                 break;
 
@@ -160,7 +174,7 @@
                     schema.ActualProperties,
                     (JsonObject)data,
                     builder, 
-                    ref sequence
+                    isTopLevel
                 );
 
                 break;
@@ -173,8 +187,8 @@
                         label,
                         schema.ActualSchema,
                         data,
-                        builder, 
-                        ref sequence
+                        builder,
+                        isTopLevel
                     );
                 }
 
@@ -195,7 +209,7 @@
                     schema,
                     (JsonArray)data,
                     builder,
-                    ref sequence
+                    isTopLevel
                 );
 
                 break;
@@ -212,37 +226,34 @@
         IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
         JsonObject data,
         RenderTreeBuilder builder,
-        ref int sequence)
+        bool isTopLevel)
     {
-        // Container
-        builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;");
+        var __builder = builder;
+        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
-        // Title
-        builder.OpenComponent<MudText>(sequence++);
-        builder.AddAttribute(sequence++, "Typo", Typo.h6);
+        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
 
-        builder.AddAttribute(sequence++, "ChildContent", new RenderFragment(builder => builder.AddContent(1, title)));
-        builder.CloseElement();
+            <MudText Typo="Typo.h6">
+                @title
+            </MudText>
 
-        // Properties
-        foreach (var entry in properties)
-        {
-            var (name, propertySchema) = entry;
-            var label = propertySchema.Description ?? name;
+            @foreach (var entry in properties)
+            {
+                var (name, propertySchema) = entry;
+                var label = propertySchema.Description ?? name;
 
-            data.TryGetPropertyValue(name, out var propertyData);
+                data.TryGetPropertyValue(name, out var propertyData);
 
-            data[name] = Render(
-                label, 
-                propertySchema,
-                propertyData,
-                builder, 
-                ref sequence
-            );
-        }
+                data[name] = Render(
+                    label, 
+                    propertySchema,
+                    propertyData,
+                    builder,
+                    isTopLevel: false
+                );
+            }
 
-        builder.CloseElement();
+        </div>
     }
 
     private void RenderArray(
@@ -250,47 +261,27 @@
         JsonSchema schema,
         JsonArray data,
         RenderTreeBuilder builder,
-        ref int sequence)
+        bool isTopLevel)
     {
-        // Container
-        builder.OpenElement(sequence++, "div");
-        builder.AddAttribute(sequence++, "style", "display: flex; flex-direction: column; gap: 1rem; margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;");
+        var __builder = builder;
+        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
-        // Title
-        builder.OpenComponent<MudText>(sequence++);
-        builder.AddAttribute(sequence++, "Typo", Typo.h6);
+        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
 
-        var capturedSequence = sequence++;
-        builder.AddAttribute(sequence++, "ChildContent", new RenderFragment(builder => builder.AddContent(capturedSequence, title)));
-        builder.CloseElement();
+            <MudText Typo="Typo.h6">
+                @title
+            </MudText>
 
-        // 'Add' button
-        {
-            builder.OpenComponent<MudIconButton>(sequence++);
-            builder.AddComponentParameter(sequence++, "Icon", Icons.Material.Filled.Add);
-            builder.CloseComponent();
-        }
+            <MudIconButton Icon="@Icons.Material.Filled.Add" />
 
-        builder.CloseElement();
+        </div>
     }
 
-    private void CreateBinding<T>(JsonNode data, RenderTreeBuilder builder, ref int sequence)
+    private void SetValue<T>(T value, JsonNode data)
     {
-        builder.AddComponentParameter(sequence++, "Value", data.GetValue<T>());
+        data.ReplaceWith(value);
 
-        builder.AddComponentParameter(
-            sequence++, 
-            "ValueChanged", 
-            EventCallback.Factory.Create<T>(
-                this,
-                value => 
-                {
-                    data.ReplaceWith(value);
-
-                    if (DataChanged.HasDelegate)
-                        DataChanged.InvokeAsync(Data);
-                }
-            )
-        );
+        if (DataChanged.HasDelegate)
+            DataChanged.InvokeAsync(Data);
     }
 }
