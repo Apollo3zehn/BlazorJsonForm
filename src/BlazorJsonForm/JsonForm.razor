@@ -101,6 +101,7 @@
                     builder.AddComponentParameter(sequence++, "Label", label);
                     //builder.AddComponentParameter(sequence++, "Min", 0);
                     //builder.AddComponentParameter(sequence++, "Max", 10);
+                    CreateBinding<int>(data, builder, ref sequence);
                     builder.CloseComponent();
                 }
 
@@ -115,6 +116,7 @@
 
                     builder.OpenComponent<MudNumericField<double>>(sequence++);
                     builder.AddComponentParameter(sequence++, "Label", label);
+                    CreateBinding<double>(data, builder, ref sequence);
                     builder.CloseComponent();
                 }
 
@@ -132,23 +134,7 @@
 
                 builder.OpenComponent<MudTextField<string>>(sequence++);
                 builder.AddComponentParameter(sequence++, "Label", label);
-                builder.AddComponentParameter(sequence++, "Value", data.GetValue<string>());
-
-                builder.AddComponentParameter(
-                    sequence++, 
-                    "ValueChanged", 
-                    EventCallback.Factory.Create<string>(
-                        this,
-                        value => 
-                        {
-                            data.ReplaceWith(value);
-
-                            if (DataChanged.HasDelegate)
-                                DataChanged.InvokeAsync(Data);
-                        }
-                    )
-                );
-
+                CreateBinding<string>(data, builder, ref sequence);
                 builder.CloseComponent();
 
                 break;
@@ -286,5 +272,25 @@
         }
 
         builder.CloseElement();
+    }
+
+    private void CreateBinding<T>(JsonNode data, RenderTreeBuilder builder, ref int sequence)
+    {
+        builder.AddComponentParameter(sequence++, "Value", data.GetValue<T>());
+
+        builder.AddComponentParameter(
+            sequence++, 
+            "ValueChanged", 
+            EventCallback.Factory.Create<T>(
+                this,
+                value => 
+                {
+                    data.ReplaceWith(value);
+
+                    if (DataChanged.HasDelegate)
+                        DataChanged.InvokeAsync(Data);
+                }
+            )
+        );
     }
 }
