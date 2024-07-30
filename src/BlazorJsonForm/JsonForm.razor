@@ -263,6 +263,9 @@
         RenderTreeBuilder builder,
         bool isTopLevel)
     {
+        if (schema.Item is null)
+            throw new Exception("schema.Item is null");
+
         var __builder = builder;
         var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
@@ -272,7 +275,26 @@
                 @title
             </MudText>
 
-            <MudIconButton Icon="@Icons.Material.Filled.Add" />
+            @foreach (var item in data)
+            {
+                Render(
+                    "",
+                    schema.Item.ActualSchema,
+                    item,
+                    builder,
+                    isTopLevel: false
+                );
+            }
+
+            <MudIconButton 
+                Icon="@Icons.Material.Filled.Add"
+                OnClick="() => 
+                {
+                    data.Add(xxx);
+
+                    if (DataChanged.HasDelegate)
+                        DataChanged.InvokeAsync(Data);
+                }" />
 
         </div>
     }

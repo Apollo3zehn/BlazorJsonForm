@@ -37,6 +37,7 @@ public record Payload(
 /// <param name="Status">Rocket status</param>
 /// <param name="MainPayload">Main payload</param>
 /// <param name="AdditionalPayloads">Additional payloads</param>
+/// <param name="SpaceCoordinates">Space coordinates</param>
 public record Rocket(
     int EngineCount,
     double Fuel,
@@ -44,5 +45,6 @@ public record Rocket(
     string Message,
     RocketStatus Status,
     Payload MainPayload,
-    Payload[] AdditionalPayloads
+    Payload[] AdditionalPayloads,
+    int[] SpaceCoordinates
 );
