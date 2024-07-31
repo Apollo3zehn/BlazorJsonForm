@@ -79,9 +79,12 @@
                     <MudSelect 
                         T="int" 
                         Label="@label"
+                        MultiSelection="schema.IsFlagEnumerable"
                         ToStringFunc="item => valueNamePairs.First(x => x.First == item).Second"
                         @bind-Value:get="data.GetValue<int>()"
-                        @bind-Value:set="value => SetValue(value, data)">
+                        @bind-Value:set="value => SetValue(value, data)"
+                        @bind-SelectedValues:get="FromFlags(data.GetValue<int>())"
+                        @bind-SelectedValues:set="value => SetValue(ToFlags(value), data)">
 
                         @foreach (var valueNamePair in valueNamePairs)
                         {
@@ -322,5 +325,25 @@
 
         if (DataChanged.HasDelegate)
             DataChanged.InvokeAsync(Data);
+    }
+
+    private IEnumerable<int> FromFlags(int value)
+    {
+        var result = new List<int>();
+
+        for (int i = 0; i < sizeof(int) * 8; i++)
+        {
+            var isBitSet = (value & (1 << i)) > 0;
+
+            if (isBitSet)
+                result.Add(1 << i);
+        }
+
+        return result;
+    }
+
+    private int ToFlags(IEnumerable<int> values)
+    {
+        return values.Sum();
     }
 }
