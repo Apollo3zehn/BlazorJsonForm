@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+
+
 /// <summary>
 /// The rocket status
 /// </summary>
@@ -39,6 +42,7 @@ public record Payload(
 /// <param name="AdditionalPayloads">Additional payloads</param>
 /// <param name="SpaceCoordinates">Space coordinates</param>
 public record Rocket(
+    [property: Range(0, 10)]
     int EngineCount,
     double Fuel,
     bool EnableTelemetry,

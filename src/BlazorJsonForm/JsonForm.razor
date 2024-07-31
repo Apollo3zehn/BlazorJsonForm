@@ -98,11 +98,10 @@
                     <MudNumericField 
                         T="int" 
                         Label="@label"
+                        Min="schema.Minimum.HasValue ? (int)schema.Minimum.Value : int.MinValue"
+                        Max="schema.Maximum.HasValue ? (int)schema.Maximum.Value : int.MaxValue"
                         @bind-Value:get="data.GetValue<int>()"
                         @bind-Value:set="value => SetValue(value, data)" />
-
-                    //builder.AddComponentParameter(sequence++, "Min", 0);
-                    //builder.AddComponentParameter(sequence++, "Max", 10);
                 }
 
                 break;
@@ -117,6 +116,8 @@
                     <MudNumericField 
                         T="double" 
                         Label="@label"
+                        Min="schema.Minimum.HasValue ? (double)schema.Minimum.Value : double.MinValue"
+                        Max="schema.Maximum.HasValue ? (double)schema.Maximum.Value : double.MaxValue"
                         @bind-Value:get="data.GetValue<double>()"
                         @bind-Value:set="value => SetValue(value, data)" />
                 }
@@ -135,6 +136,7 @@
 
                 <MudSwitch 
                     Label="@label"
+                    Color="Color.Primary"
                     @bind-Value:get="data.GetValue<bool>()"
                     @bind-Value:set="value => SetValue(value, data)" />
 
@@ -166,13 +168,10 @@
 
             case JsonObjectType.Object:
 
-                if (data is null)
-                    data = new JsonObject();
-
-                RenderObject(
+                data = RenderObject(
                     label, 
                     schema.ActualProperties,
-                    (JsonObject)data,
+                    (JsonObject?)data,
                     builder, 
                     isTopLevel
                 );
@@ -221,14 +220,18 @@
         return data;
     }
 
-    private void RenderObject(
+    private JsonObject RenderObject(
         string? title,
         IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
-        JsonObject data,
+        JsonObject? data,
         RenderTreeBuilder builder,
         bool isTopLevel)
     {
         var __builder = builder;
+
+        if (data is null)
+            data = new JsonObject();
+
         var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
@@ -254,6 +257,8 @@
             }
 
         </div>
+
+        return data;
     }
 
     private void RenderArray(
@@ -275,26 +280,38 @@
                 @title
             </MudText>
 
-            @foreach (var item in data)
+            @for (int i = 0; i < data.Count; i++)
             {
                 Render(
-                    "",
+                    "#" + (i + 1),
                     schema.Item.ActualSchema,
-                    item,
+                    data[i],
                     builder,
                     isTopLevel: false
                 );
             }
 
-            <MudIconButton 
-                Icon="@Icons.Material.Filled.Add"
-                OnClick="() => 
-                {
-                    data.Add(xxx);
+            <div style="margin-left: auto; margin-right: auto;">
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Add"
+                    OnClick="() => 
+                    {
+                        var item = Render(
+                            string.Empty,
+                            schema.Item.ActualSchema,
+                            data: default,
+                            /* TODO the builder is useless here */
+                            builder: new RenderTreeBuilder(),
+                            isTopLevel: false
+                        );
 
-                    if (DataChanged.HasDelegate)
-                        DataChanged.InvokeAsync(Data);
-                }" />
+                        data.Add(item);
+
+                        if (DataChanged.HasDelegate)
+                            DataChanged.InvokeAsync(Data);
+                    }" />
+
+            </div>
 
         </div>
     }
