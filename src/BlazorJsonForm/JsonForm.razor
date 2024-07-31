@@ -65,11 +65,11 @@
         {
             case JsonObjectType.Integer:
 
-                if (data is null)
-                    data = 0;
-
                 if (schema.Enumeration.Any())
                 {
+                    if (data is null)
+                        data = 0;
+
                     var valueNamePairs = schema
                         .Enumeration
                         .Cast<int>()
@@ -98,13 +98,70 @@
 
                 else
                 {
-                    <MudNumericField 
-                        T="int" 
-                        Label="@label"
-                        Min="schema.Minimum.HasValue ? (int)schema.Minimum.Value : int.MinValue"
-                        Max="schema.Maximum.HasValue ? (int)schema.Maximum.Value : int.MaxValue"
-                        @bind-Value:get="data.GetValue<int>()"
-                        @bind-Value:set="value => SetValue(value, data)" />
+                    switch (schema.Format)
+                    {
+                        // only these number types are recognized by NJsonSchema
+
+                        case "byte":
+
+                            if (data is null)
+                                data = (byte)0;
+
+                            <MudNumericField 
+                                T="byte" 
+                                Label="@label"
+                                Min="schema.Minimum.HasValue ? (byte)schema.Minimum.Value : byte.MinValue"
+                                Max="schema.Maximum.HasValue ? (byte)schema.Maximum.Value : byte.MaxValue"
+                                @bind-Value:get="data.GetValue<byte>()"
+                                @bind-Value:set="value => SetValue(value, data)" />
+
+                            break;
+
+                        case "uint64":
+                        
+                            if (data is null)
+                                data = 0UL;
+
+                            <MudNumericField 
+                                T="ulong" 
+                                Label="@label"
+                                Min="schema.Minimum.HasValue ? (ulong)schema.Minimum.Value : ulong.MinValue"
+                                Max="schema.Maximum.HasValue ? (ulong)schema.Maximum.Value : ulong.MaxValue"
+                                @bind-Value:get="data.GetValue<ulong>()"
+                                @bind-Value:set="value => SetValue(value, data)" />
+
+                            break;
+
+                        case "int64":
+
+                            if (data is null)
+                                data = 0L;
+                        
+                            <MudNumericField 
+                                T="long" 
+                                Label="@label"
+                                Min="schema.Minimum.HasValue ? (long)schema.Minimum.Value : long.MinValue"
+                                Max="schema.Maximum.HasValue ? (long)schema.Maximum.Value : long.MaxValue"
+                                @bind-Value:get="data.GetValue<long>()"
+                                @bind-Value:set="value => SetValue(value, data)" />
+
+                            break;
+
+                        default:
+
+                            if (data is null)
+                                data = 0;
+
+                            <MudNumericField 
+                                T="int" 
+                                Label="@label"
+                                Min="schema.Minimum.HasValue ? (int)schema.Minimum.Value : int.MinValue"
+                                Max="schema.Maximum.HasValue ? (int)schema.Maximum.Value : int.MaxValue"
+                                @bind-Value:get="data.GetValue<int>()"
+                                @bind-Value:set="value => SetValue(value, data)" />
+
+                            break;
+                    }
                 }
 
                 break;

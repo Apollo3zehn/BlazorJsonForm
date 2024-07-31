@@ -1,4 +1,4 @@
 - Enum XML comment description
-- Remaining data types (byte, short, uint, ...)
 - Dict support?
 - Enum with different base type
+- nullable version

@@ -77,6 +77,9 @@ public record Payload(
 /// A rocket
 /// </summary>
 /// <param name="EngineCount">Number of engines</param>
+/// <param name="HeadlightBrightness">Headlight brightness</param>
+/// <param name="ImprobabilityDriveFlux">Flux of the improbability drive</param>
+/// <param name="Storage">Data recording storage size in bytes</param>
 /// <param name="Fuel">Amount of fuel in L</param>
 /// <param name="EnableTelemetry">Enable telemetry</param>
 /// <param name="Message">Message from mankind to the outer space</param>
@@ -88,6 +91,9 @@ public record Payload(
 public record Rocket(
     [property: Range(0, 10)]
     int EngineCount,
+    byte HeadlightBrightness,
+    long ImprobabilityDriveFlux,
+    ulong Storage,
     double Fuel,
     bool EnableTelemetry,
     string Message,
