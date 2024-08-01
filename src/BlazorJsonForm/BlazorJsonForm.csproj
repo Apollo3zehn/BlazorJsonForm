@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(TargetFrameworkVersion)</TargetFramework>
+    <NoWarn>CS8669</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

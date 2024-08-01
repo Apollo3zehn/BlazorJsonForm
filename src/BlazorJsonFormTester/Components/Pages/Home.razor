@@ -6,8 +6,13 @@
 
 <div>
 
-    <div style="margin-left: auto; margin-right: auto;">
-        Put select here for "default config vs. predefined config"
+    <div style="display:flex; justify-content: center;">
+        <MudSwitch
+            @bind-Value="_nullableMode"
+            @bind-Value:after="OnModeChanged"
+            Color="Color.Secondary"
+            Label="Nullable mode">
+        </MudSwitch>
     </div>
 
     <div style="display: flex; gap: 1rem; margin: 1rem;">
@@ -52,7 +57,18 @@
 </div>
 
 @code {
-    JsonNode? _data;
+    private bool _nullableMode;
 
-    JsonSchema _schema = JsonSchema.FromType<Rocket>();
+    private JsonNode? _data;
+
+    private JsonSchema _schema = JsonSchema.FromType<Rocket>();
+
+    private void OnModeChanged()
+    {
+        _schema = _nullableMode
+            ? JsonSchema.FromType<Rocket_Nullable>()
+            : JsonSchema.FromType<Rocket>();
+
+        _data = default;
+    }
 }
