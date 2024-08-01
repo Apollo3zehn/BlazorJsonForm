@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 /// <summary>
 /// The rocket status
 /// </summary>
-public enum RocketStatus
+public enum RocketStatus: ushort
 {
     /// <summary>
     /// Ready to launch
@@ -21,10 +21,10 @@ public enum RocketStatus
     Flight
 }
 
-[Flags]
 /// <summary>
 /// Mission targets
 /// </summary>
+[Flags]
 public enum MissionTargets
 {
     /// <summary>
@@ -76,30 +76,33 @@ public record Payload(
 /// <summary>
 /// A rocket
 /// </summary>
-/// <param name="EngineCount">Number of engines</param>
-/// <param name="HeadlightBrightness">Headlight brightness</param>
-/// <param name="ImprobabilityDriveFlux">Flux of the improbability drive</param>
-/// <param name="Storage">Data recording storage size in bytes</param>
-/// <param name="Fuel">Amount of fuel in L</param>
-/// <param name="EnableTelemetry">Enable telemetry</param>
-/// <param name="Message">Message from mankind to the outer space</param>
-/// <param name="Status">Rocket status</param>
-/// <param name="MissionTargets">Mission targets</param>
-/// <param name="MainPayload">Main payload</param>
-/// <param name="AdditionalPayloads">Additional payloads</param>
-/// <param name="SpaceCoordinates">Space coordinates</param>
+/// <param name="EngineCount">Number of engines @ int (0 &lt;= value &lt;= 10)</param>
+/// <param name="HeadlightBrightness">Headlight brightness @ byte</param>
+/// <param name="ImprobabilityDriveFlux">Flux of the improbability drive @ long</param>
+/// <param name="Storage">Data recording storage size in bytes @ ulong</param>
+/// <param name="AmbientTemperature">Ambient temperature in °C @ float</param>
+/// <param name="Fuel">Amount of fuel in L @ double</param>
+/// <param name="EnableTelemetry">Enable telemetry @ bool</param>
+/// <param name="Message">Message from mankind @ string (max length = 20)</param>
+/// <param name="Status">Rocket status @ enum of ushort</param>
+/// <param name="MissionTargets">Mission targets @ flags</param>
+/// <param name="MainPayload">Main payload @ object</param>
+/// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
+/// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 public record Rocket(
     [property: Range(0, 10)]
     int EngineCount,
     byte HeadlightBrightness,
     long ImprobabilityDriveFlux,
     ulong Storage,
+    float AmbientTemperature,
     double Fuel,
     bool EnableTelemetry,
+    [property: StringLength(20)]
     string Message,
     RocketStatus Status,
     MissionTargets MissionTargets,
     Payload MainPayload,
     Payload[] AdditionalPayloads,
-    int[] SpaceCoordinates
+    int[] LaunchCoordinates
 );

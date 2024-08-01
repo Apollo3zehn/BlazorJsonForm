@@ -2,6 +2,8 @@
 @using NJsonSchema
 @using System.Text.Json.Nodes
 @using System.Text.Json
+@using System.Runtime.CompilerServices
+@using System.Numerics
 
 <div style="display: flex; flex-direction: column;">
     @_renderFragement
@@ -67,125 +69,57 @@
 
                 if (schema.Enumeration.Any())
                 {
-                    if (data is null)
-                        data = 0;
+                    var enumType = schema.Enumeration.ElementAt(0)!.GetType();
 
-                    var valueNamePairs = schema
-                        .Enumeration
-                        .Cast<int>()
-                        .Zip(schema.EnumerationNames)
-                        .ToList();
+                    if (enumType == typeof(byte))
+                        data = RenderEnum<byte>(label, schema, (JsonValue?)data, builder);
 
-                    <MudSelect 
-                        T="int" 
-                        Label="@label"
-                        MultiSelection="schema.IsFlagEnumerable"
-                        ToStringFunc="item => valueNamePairs.First(x => x.First == item).Second"
-                        @bind-Value:get="data.GetValue<int>()"
-                        @bind-Value:set="value => SetValue(value, data)"
-                        @bind-SelectedValues:get="FromFlags(data.GetValue<int>())"
-                        @bind-SelectedValues:set="value => SetValue(ToFlags(value), data)">
+                    else if (enumType == typeof(sbyte))
+                        data = RenderEnum<sbyte>(label, schema, (JsonValue?)data, builder);
 
-                        @foreach (var valueNamePair in valueNamePairs)
-                        {
-                            <MudSelectItem 
-                                T="int"
-                                Value="valueNamePair.First" />
-                        }
+                    else if (enumType == typeof(ushort))
+                        data = RenderEnum<ushort>(label, schema, (JsonValue?)data, builder);
 
-                    </MudSelect>
+                    else if (enumType == typeof(short))
+                        data = RenderEnum<short>(label, schema, (JsonValue?)data, builder);
+
+                    else if (enumType == typeof(uint))
+                        data = RenderEnum<uint>(label, schema, (JsonValue?)data, builder);
+
+                    else if (enumType == typeof(int))
+                        data = RenderEnum<int>(label, schema, (JsonValue?)data, builder);
+
+                    else if (enumType == typeof(ulong))
+                        data = RenderEnum<ulong>(label, schema, (JsonValue?)data, builder);
+
+                    else if (enumType == typeof(long))
+                        data = RenderEnum<long>(label, schema, (JsonValue?)data, builder);
+
+                    else
+                        throw new Exception($"Unexpected enum type {enumType.FullName}");
                 }
 
                 else
                 {
-                    switch (schema.Format)
+                    data = schema.Format switch
                     {
-                        // only these number types are recognized by NJsonSchema
-
-                        case "byte":
-
-                            if (data is null)
-                                data = (byte)0;
-
-                            <MudNumericField 
-                                T="byte" 
-                                Label="@label"
-                                Min="schema.Minimum.HasValue ? (byte)schema.Minimum.Value : byte.MinValue"
-                                Max="schema.Maximum.HasValue ? (byte)schema.Maximum.Value : byte.MaxValue"
-                                @bind-Value:get="data.GetValue<byte>()"
-                                @bind-Value:set="value => SetValue(value, data)" />
-
-                            break;
-
-                        case "uint64":
-                        
-                            if (data is null)
-                                data = 0UL;
-
-                            <MudNumericField 
-                                T="ulong" 
-                                Label="@label"
-                                Min="schema.Minimum.HasValue ? (ulong)schema.Minimum.Value : ulong.MinValue"
-                                Max="schema.Maximum.HasValue ? (ulong)schema.Maximum.Value : ulong.MaxValue"
-                                @bind-Value:get="data.GetValue<ulong>()"
-                                @bind-Value:set="value => SetValue(value, data)" />
-
-                            break;
-
-                        case "int64":
-
-                            if (data is null)
-                                data = 0L;
-                        
-                            <MudNumericField 
-                                T="long" 
-                                Label="@label"
-                                Min="schema.Minimum.HasValue ? (long)schema.Minimum.Value : long.MinValue"
-                                Max="schema.Maximum.HasValue ? (long)schema.Maximum.Value : long.MaxValue"
-                                @bind-Value:get="data.GetValue<long>()"
-                                @bind-Value:set="value => SetValue(value, data)" />
-
-                            break;
-
-                        default:
-
-                            if (data is null)
-                                data = 0;
-
-                            <MudNumericField 
-                                T="int" 
-                                Label="@label"
-                                Min="schema.Minimum.HasValue ? (int)schema.Minimum.Value : int.MinValue"
-                                Max="schema.Maximum.HasValue ? (int)schema.Maximum.Value : int.MaxValue"
-                                @bind-Value:get="data.GetValue<int>()"
-                                @bind-Value:set="value => SetValue(value, data)" />
-
-                            break;
-                    }
+                        "byte" => RenderNumeric<byte>(label, schema, (JsonValue?)data, builder),
+                        "uint64" => RenderNumeric<ulong>(label, schema, (JsonValue?)data, builder),
+                        "int64" => RenderNumeric<long>(label, schema, (JsonValue?)data, builder),
+                        _ => RenderNumeric<int>(label, schema, (JsonValue?)data, builder)
+                    };
                 }
 
                 break;
 
             case JsonObjectType.Number:
 
-                if (schema.Format == "double")
+                data = schema.Format switch
                 {
-                    if (data is null)
-                        data = 0.0;
-
-                    <MudNumericField 
-                        T="double" 
-                        Label="@label"
-                        Min="schema.Minimum.HasValue ? (double)schema.Minimum.Value : double.MinValue"
-                        Max="schema.Maximum.HasValue ? (double)schema.Maximum.Value : double.MaxValue"
-                        @bind-Value:get="data.GetValue<double>()"
-                        @bind-Value:set="value => SetValue(value, data)" />
-                }
-
-                else
-                {
-                    throw new Exception("schema.Format != \"double\" is not (yet) supported");
-                }
+                    "float" => RenderNumeric<float>(label, schema, (JsonValue?)data, builder),
+                    "double" => RenderNumeric<double>(label, schema, (JsonValue?)data, builder),
+                    _ => throw new Exception($"schema.Format {schema.Format} is not (yet) supported")
+                };
 
                 break;
 
@@ -208,10 +142,11 @@
                     data = string.Empty;
 
                 <MudTextField 
-                        T="string" 
-                        Label="@label"
-                        @bind-Value:get="data.GetValue<string>()"
-                @bind-Value:set="value => SetValue(value, data)" />
+                    T="string"
+                    Label="@label"
+                    MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
+                    @bind-Value:get="data.GetValue<string>()"
+                    @bind-Value:set="value => SetValue(value, data)" />
 
                 break;
 
@@ -321,6 +256,63 @@
         return data;
     }
 
+    private JsonValue RenderNumeric<T>(
+        string label, 
+        JsonSchema schema,
+        JsonValue? data,
+        RenderTreeBuilder builder) where T : IMinMaxValue<T>, INumber<T>, IBitwiseOperators<T, T, T>
+    {
+        var __builder = builder;
+
+        if (data is null)
+            data = JsonValue.Create(T.Zero);
+
+        <MudNumericField 
+            Label="@label"
+            Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
+            Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
+            @bind-Value:get="data!.GetValue<T>()"
+            @bind-Value:set="value => SetValue(value, data)" />
+        
+        return data;
+    }
+
+    private JsonValue RenderEnum<T>(
+        string label, 
+        JsonSchema schema,
+        JsonValue? data,
+        RenderTreeBuilder builder) where T : INumber<T>, IBitwiseOperators<T, T, T>
+    {
+        var __builder = builder;
+
+        if (data is null)
+            data = JsonValue.Create(T.Zero);
+
+        var valueNamePairs = schema
+            .Enumeration
+            .Cast<T>()
+            .Zip(schema.EnumerationNames)
+            .ToList();
+
+        <MudSelect 
+            Label="@label"
+            MultiSelection="schema.IsFlagEnumerable"
+            ToStringFunc="item => valueNamePairs.First(x => x.First is not null && x.First.Equals(item)).Second"
+            @bind-Value:get="data!.GetValue<T>()"
+            @bind-Value:set="value => SetValue(value, data)"
+            @bind-SelectedValues:get="FromFlags(data.GetValue<T>())"
+            @bind-SelectedValues:set="value => SetValue(ToFlags(value), data)">
+
+            @foreach (var valueNamePair in valueNamePairs)
+            {
+                <MudSelectItem Value="valueNamePair.First" />
+            }
+
+        </MudSelect>
+
+        return data;
+    }
+
     private void RenderArray(
         string? title,
         JsonSchema schema,
@@ -384,23 +376,35 @@
             DataChanged.InvokeAsync(Data);
     }
 
-    private IEnumerable<int> FromFlags(int value)
+    private IEnumerable<T> FromFlags<T>(T value) where T : INumber<T>, IBitwiseOperators<T, T, T>
     {
-        var result = new List<int>();
+        var result = new List<T>();
+        var two = T.One + T.One;
 
-        for (int i = 0; i < sizeof(int) * 8; i++)
+        for (int i = 0; i < Unsafe.SizeOf<T>() * 8; i++)
         {
-            var isBitSet = (value & (1 << i)) > 0;
+            // this mimics the bit-shift operator (1 << i) as no generic math equivalent was found
+            var shiftedOne = T.One;
+
+            for (int j = 0; j < i; j++)
+            {
+                shiftedOne = shiftedOne * two;
+            }
+
+            // now continue as normal
+            var isBitSet = (value & shiftedOne) > T.Zero;
 
             if (isBitSet)
-                result.Add(1 << i);
+                result.Add(shiftedOne);
         }
 
         return result;
     }
 
-    private int ToFlags(IEnumerable<int> values)
+    // Generic math: sum
+    // https://stackoverflow.com/a/73906555
+    T ToFlags<T>(IEnumerable<T> numbers) where T : INumber<T>
     {
-        return values.Sum();
+        return numbers.Aggregate(T.Zero, (sum, value) => sum + T.CreateChecked(value));
     }
 }

@@ -1,4 +1,6 @@
 - Enum XML comment description
 - Dict support?
-- Enum with different base type
 - nullable version
+- target framework version netstandard2.1?
+- optimize space usage (margin, etc)
+- array delete / move up / move down buttons (maybe three-dot menu?)
