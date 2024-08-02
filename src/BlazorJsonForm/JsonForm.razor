@@ -103,28 +103,28 @@
                     var enumType = schema.Enumeration.ElementAt(0)!.GetType();
 
                     if (enumType == typeof(byte))
-                        data = RenderEnum<byte>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<byte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(sbyte))
-                        data = RenderEnum<sbyte>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<sbyte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(ushort))
-                        data = RenderEnum<ushort>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<ushort>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(short))
-                        data = RenderEnum<short>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<short>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(uint))
-                        data = RenderEnum<uint>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<uint>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(int))
-                        data = RenderEnum<int>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<int>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(ulong))
-                        data = RenderEnum<ulong>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<ulong>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(long))
-                        data = RenderEnum<long>(label, schema, (JsonValue?)data, setValue, builder);
+                        data = RenderEnum<long>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else
                         throw new Exception($"Unexpected enum type {enumType.FullName}");
@@ -514,11 +514,10 @@
         if (isNullable)
         {
             <MudNumericField
-                T="Nullable<T>"
                 Label="@label"
                 Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
                 Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
-                @bind-Value:get="data is null ? default(T?) : data.GetValue<T>()"
+                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
                 @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
         }
 
@@ -532,23 +531,21 @@
                 Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
                 Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
                 @bind-Value:get="data!.GetValue<T>()"
-                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
         }
 
         return data;
     }
 
-    private JsonValue RenderEnum<T>(
+    private JsonValue? RenderEnum<T>(
         string label,
+        bool isNullable,
         JsonSchema schema,
         JsonValue? data,
         Action<JsonNode?>? setValue,
-        RenderTreeBuilder builder) where T : INumber<T>, IBitwiseOperators<T, T, T>
+        RenderTreeBuilder builder) where T : struct, INumber<T>, IBitwiseOperators<T, T, T>
     {
         var __builder = builder;
-
-        if (data is null)
-            data = JsonValue.Create(T.Zero);
 
         var valueNamePairs = schema
             .Enumeration
@@ -556,21 +553,49 @@
             .Zip(schema.EnumerationNames)
             .ToList();
 
-        <MudSelect 
-            Label="@label"
-            MultiSelection="schema.IsFlagEnumerable"
-            ToStringFunc="item => valueNamePairs.First(x => x.First is not null && x.First.Equals(item)).Second"
-            @bind-Value:get="data!.GetValue<T>()"
-            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))"
-            @bind-SelectedValues:get="FromFlags(data.GetValue<T>())"
-            @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value)))">
+        if (isNullable)
+        {
+            <MudSelect
+                T="T?"
+                Label="@label"
+                MultiSelection="schema.IsFlagEnumerable"
+                ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
+                Clearable="true"
+                OnClearButtonClick="() => setValue?.Invoke(default)"
+                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
+                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))"
+                @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
+                @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
 
-            @foreach (var valueNamePair in valueNamePairs)
-            {
-                <MudSelectItem Value="valueNamePair.First" />
-            }
+                @foreach (var valueNamePair in valueNamePairs)
+                {
+                    <MudSelectItem Value="(T?)valueNamePair.First" />
+                }
 
-        </MudSelect>
+            </MudSelect>
+        }
+
+        else
+        {
+            if (data is null)
+                data = JsonValue.Create(T.Zero);
+
+            <MudSelect
+                Label="@label"
+                MultiSelection="schema.IsFlagEnumerable"
+                ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
+                @bind-Value:get="data!.GetValue<T>()"
+                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))"
+                @bind-SelectedValues:get="FromFlags(data.GetValue<T>())"
+                @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value)))">
+
+                @foreach (var valueNamePair in valueNamePairs)
+                {
+                    <MudSelectItem Value="valueNamePair.First" />
+                }
+
+            </MudSelect>
+        }
 
         return data;
     }

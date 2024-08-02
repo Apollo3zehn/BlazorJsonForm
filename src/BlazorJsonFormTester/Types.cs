@@ -134,8 +134,8 @@ public record Rocket_Nullable(
     bool? EnableTelemetry,
     [property: StringLength(20)]
     string? Message,
-    // RocketStatus? Status,
-    // MissionTargets? MissionTargets,
+    RocketStatus? Status,
+    MissionTargets? MissionTargets,
     Payload? MainPayload,
     Payload?[]? AdditionalPayloads,
     int[]? LaunchCoordinates
