@@ -133,10 +133,10 @@ public record Rocket_Nullable(
     double? Fuel,
     bool? EnableTelemetry,
     [property: StringLength(20)]
-    string? Message
+    string? Message,
     // RocketStatus? Status,
     // MissionTargets? MissionTargets,
-    // Payload? MainPayload,
-    // Payload[]? AdditionalPayloads,
-    // int[]? LaunchCoordinates
+    Payload? MainPayload,
+    Payload?[]? AdditionalPayloads,
+    int[]? LaunchCoordinates
 );

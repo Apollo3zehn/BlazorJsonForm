@@ -1,6 +1,7 @@
 - Enum XML comment description
 - Dict support?
-- nullable version
+- nullable version (enum is missing)
 - target framework version netstandard2.1?
 - optimize space usage (margin, etc)
-- array delete / move up / move down buttons (maybe three-dot menu?)
+- prettify delete and set to null buttons
+- solve TODO: "TODO maybe this can be replaced with null?"

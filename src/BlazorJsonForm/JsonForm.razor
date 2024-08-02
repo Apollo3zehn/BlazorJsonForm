@@ -35,7 +35,9 @@
     {
         _renderFragement = builder =>
         {
-            var oldData = Data;
+            var oldData = Data is null
+                ? null
+                : Data.DeepClone();
 
             Data = Render(
                 "Rocket settings", 
@@ -43,6 +45,7 @@
                 Data,
                 setValue: default,
                 builder,
+                isNullable: false,
                 isTopLevel: true
             );
 
@@ -60,24 +63,35 @@
         JsonNode? data,
         Action<JsonNode?>? setValue,
         RenderTreeBuilder builder, 
+        bool isNullable,
         bool isTopLevel
     )
     {
-        Render(label, schema, data, setValue, builder, isTopLevel);
+        Render(
+            label, 
+            schema, 
+            data, 
+            setValue, 
+            builder,
+            isNullable,
+            isTopLevel
+        );
+
         return string.Empty;
     }
 
     private JsonNode? Render(
-        string label, 
-        JsonSchema schema, 
+        string label,
+        JsonSchema schema,
         JsonNode? data,
         Action<JsonNode?>? setValue,
-        RenderTreeBuilder builder, 
+        RenderTreeBuilder builder,
+        bool isNullable,
         bool isTopLevel
     )
     {
         var __builder = builder;
-        var isNullable = schema.Type.HasFlag(JsonObjectType.Null);
+        isNullable |= schema.Type.HasFlag(JsonObjectType.Null);
 
         switch (schema.Type)
         {
@@ -202,8 +216,10 @@
 
                 data = RenderObject(
                     label, 
+                    isNullable,
                     schema.ActualProperties,
                     (JsonObject?)data,
+                    setValue,
                     builder, 
                     isTopLevel
                 );
@@ -216,30 +232,44 @@
                 {
                     data = Render(
                         label,
-                        schema.ActualSchema,
+                        schema.OneOf.ElementAt(0).ActualSchema,
                         data,
                         setValue,
                         builder,
+                        isNullable: false,
+                        isTopLevel
+                    );
+                }
+
+                else if (schema.OneOf.Count == 2 && schema.OneOf.ElementAt(0).Type == JsonObjectType.Null)
+                {
+                    data = Render(
+                        label,
+                        schema.OneOf.ElementAt(1).ActualSchema,
+                        data,
+                        setValue,
+                        builder,
+                        isNullable: true,
                         isTopLevel
                     );
                 }
 
                 else
                 {
-                    throw new Exception("schema.OneOf.Count != 1 is not (yet) supported");
+                    throw new Exception("schema.OneOf.Count > 2 is not supported");
                 }
 
                 break;
 
             case JsonObjectType.Array:
+            case JsonObjectType.Array | JsonObjectType.Null:
 
-                if (data is null)
-                    data = new JsonArray();
-
-                RenderArray(
+                data = RenderArray(
                     label,
+                    isNullable,
                     schema,
-                    (JsonArray)data,
+                    (JsonArray?)data,
+                    setValue,
                     builder,
                     isTopLevel
                 );
@@ -253,47 +283,217 @@
         return data;
     }
 
-    private JsonObject RenderObject(
+    private JsonObject? RenderObject(
         string? title,
+        bool isNullable,
         IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
         JsonObject? data,
+        Action<JsonNode?>? setValue,
         RenderTreeBuilder builder,
         bool isTopLevel)
     {
         var __builder = builder;
 
-        if (data is null)
+        if (data is null && !isNullable)
             data = new JsonObject();
 
         var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
 
-            <MudText Typo="Typo.h6">
-                @title
-            </MudText>
+            <div style="display: flex;">
 
-            @foreach (var entry in properties)
+                <MudText
+                    Style="flex: 1"
+                    Typo="Typo.h6">
+                    @title
+                </MudText>
+
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
+                            OnClick="() => setValue?.Invoke(default)"
+                            Size="Size.Small"
+                            Icon="@Icons.Material.Filled.Clear" />
+                    </MudTooltip>
+                }
+
+            </div>
+
+            @if (data is null)
             {
-                var (name, propertySchema) = entry;
-                var label = propertySchema.Description ?? name;
+                <MudButton 
+                    OnClick="() => setValue?.Invoke(new JsonObject())"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary">
+                    Create
+                </MudButton>
+            }
 
-                data.TryGetPropertyValue(name, out var propertyData);
+            else
+            {
+                foreach (var entry in properties)
+                {
+                    var (name, propertySchema) = entry;
+                    var label = propertySchema.Description ?? name;
 
-                data[name] = Render(
-                    label, 
-                    propertySchema,
-                    propertyData,
-                    setValue: value =>
-                    {
-                        data[name] = value;
+                    data.TryGetPropertyValue(name, out var propertyData);
 
-                        if (DataChanged.HasDelegate)
-                            DataChanged.InvokeAsync(Data);
-                    },
-                    builder,
-                    isTopLevel: false
-                );
+                    data[name] = Render(
+                        label, 
+                        propertySchema,
+                        propertyData,
+                        setValue: value =>
+                        {
+                            data[name] = value;
+
+                            if (DataChanged.HasDelegate)
+                                DataChanged.InvokeAsync(Data);
+                        },
+                        builder,
+                        isNullable: false,
+                        isTopLevel: false
+                    );
+                }
+            }
+
+        </div>
+
+        return data;
+    }
+
+    private JsonArray? RenderArray(
+        string? title,
+        bool isNullable,
+        JsonSchema schema,
+        JsonArray? data,
+        Action<JsonNode?>? setValue,
+        RenderTreeBuilder builder,
+        bool isTopLevel)
+    {
+        if (schema.Item is null)
+            throw new Exception("schema.Item is null");
+
+        var __builder = builder;
+
+        if (data is null && !isNullable)
+            data = new JsonArray();
+
+        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
+
+            <div style="display: flex;">
+
+                <MudText
+                    Style="flex: 1"
+                    Typo="Typo.h6">
+                    @title
+                </MudText>
+
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
+                            OnClick="() => setValue?.Invoke(default)"
+                            Size="Size.Small"
+                            Icon="@Icons.Material.Filled.Clear" />
+                    </MudTooltip>
+                }
+
+            </div>
+
+            @if (data is null)
+            {
+                <MudButton 
+                    OnClick="() => setValue?.Invoke(new JsonArray())"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary">
+                    Create
+                </MudButton>
+            }
+
+            else
+            {
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var i_captured = i;
+
+                    <div style="display: flex;">
+                        <div style="flex: 1;">
+                            @RenderWithDisposableReturnValue(
+                                "#" + (i_captured + 1),
+                                schema.Item.ActualSchema,
+                                data[i_captured],
+                                setValue: value =>
+                                {
+                                    data[i_captured] = value;
+
+                                    if (DataChanged.HasDelegate)
+                                        DataChanged.InvokeAsync(Data);
+                                },
+                                builder,
+                                isNullable: false,
+                                isTopLevel: false
+                            )
+                        </div>
+
+                        <div>
+                            <MudMenu Size="Size.Small" Icon="@Icons.Material.Filled.MoreVert">
+
+                                @if (i_captured != 0)
+                                {
+                                    <MudMenuItem
+                                        OnClick="() => MoveUp(data, i_captured)"
+                                        Icon="@Icons.Material.Filled.ArrowUpward">
+                                        Move up
+                                    </MudMenuItem>
+                                }
+
+                                @if (i_captured != data.Count - 1)
+                                {
+                                    <MudMenuItem
+                                        OnClick="() => MoveDown(data, i_captured)"
+                                        Icon="@Icons.Material.Filled.ArrowDownward">
+                                        Move down
+                                    </MudMenuItem>
+                                }
+                                
+                                <MudMenuItem
+                                    OnClick="() => Delete(data, i_captured)"
+                                    Icon="@Icons.Material.Filled.Delete">
+                                    Delete
+                                </MudMenuItem>
+                            </MudMenu>
+                        </div>
+                    </div>
+                }
+
+                <div style="margin-left: auto; margin-right: auto;">
+                    <MudIconButton 
+                        Icon="@Icons.Material.Filled.Add"
+                        OnClick="() => 
+                        {
+                            /* TODO maybe this can be replaced with null? */
+                            var item = Render(
+                                string.Empty,
+                                schema.Item.ActualSchema,
+                                data: default,
+                                setValue: default,
+                                /* TODO the builder is useless here */
+                                builder: new RenderTreeBuilder(),
+                                isNullable: false,
+                                isTopLevel: false
+                            );
+
+                            data.Add(item);
+
+                            if (DataChanged.HasDelegate)
+                                DataChanged.InvokeAsync(Data);
+                        }" />
+
+                </div>
             }
 
         </div>
@@ -375,121 +575,6 @@
         return data;
     }
 
-    private void RenderArray(
-        string? title,
-        JsonSchema schema,
-        JsonArray data,
-        RenderTreeBuilder builder,
-        bool isTopLevel)
-    {
-        if (schema.Item is null)
-            throw new Exception("schema.Item is null");
-
-        var __builder = builder;
-        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
-
-        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
-
-            <MudText Typo="Typo.h6">
-                @title
-            </MudText>
-
-            @for (int i = 0; i < data.Count; i++)
-            {
-                var i_captured = i;
-
-                <div style="display: flex;">
-                    <div style="flex: 1;">
-                        @RenderWithDisposableReturnValue(
-                            "#" + (i_captured + 1),
-                            schema.Item.ActualSchema,
-                            data[i_captured],
-                            setValue: value =>
-                            {
-                                data[i_captured] = value;
-
-                                if (DataChanged.HasDelegate)
-                                    DataChanged.InvokeAsync(Data);
-                            },
-                            builder,
-                            isTopLevel: false
-                        )
-                    </div>
-
-                    <div>
-                        <MudMenu Size="Size.Small" Icon="@Icons.Material.Filled.MoreVert">
-
-                            @if (i_captured != 0)
-                            {
-                                <MudMenuItem
-                                    OnClick="() => MoveUp(data, i_captured)"
-                                    Icon="@Icons.Material.Filled.ArrowUpward">
-                                    Move up
-                                </MudMenuItem>
-                            }
-
-                            @if (i_captured != data.Count - 1)
-                            {
-                                <MudMenuItem
-                                    OnClick="() => MoveDown(data, i_captured)"
-                                    Icon="@Icons.Material.Filled.ArrowDownward">
-                                    Move down
-                                </MudMenuItem>
-                            }
-                            
-                            <MudMenuItem
-                                OnClick="() => Delete(data, i_captured)"
-                                Icon="@Icons.Material.Filled.Delete">
-                                Delete
-                            </MudMenuItem>
-                        </MudMenu>
-                    </div>
-                </div>
-            }
-
-            <div style="margin-left: auto; margin-right: auto;">
-                <MudIconButton 
-                    Icon="@Icons.Material.Filled.Add"
-                    OnClick="() => 
-                    {
-                        var item = Render(
-                            string.Empty,
-                            schema.Item.ActualSchema,
-                            data: default,
-                            setValue: default,
-                            /* TODO the builder is useless here */
-                            builder: new RenderTreeBuilder(),
-                            isTopLevel: false
-                        );
-
-                        data.Add(item);
-
-                        if (DataChanged.HasDelegate)
-                            DataChanged.InvokeAsync(Data);
-                    }" />
-
-            </div>
-
-        </div>
-    }
-
-    @* private JsonValue? SetValue<T>(T? value, JsonValue? data)
-    {
-        if (value is null)
-            return null;
-
-        else if (data is null)
-            return JsonValue.Create(value);
-
-        else
-            data.ReplaceWith(value);
-
-        if (DataChanged.HasDelegate)
-            DataChanged.InvokeAsync(Data);
-
-        return data;
-    } *@
-
     private IEnumerable<T> FromFlags<T>(T value) where T : INumber<T>, IBitwiseOperators<T, T, T>
     {
         var result = new List<T>();
@@ -528,6 +613,9 @@
 
         data.RemoveAt(position);
         data.Insert(position - 1, item);
+
+        if (DataChanged.HasDelegate)
+            DataChanged.InvokeAsync(Data);
     }
 
     private void MoveDown(JsonArray data, int position)
@@ -536,10 +624,16 @@
 
         data.RemoveAt(position);
         data.Insert(position + 1, item);
+
+        if (DataChanged.HasDelegate)
+            DataChanged.InvokeAsync(Data);
     }
 
     private void Delete(JsonArray data, int position)
     {
         data.RemoveAt(position);
+
+        if (DataChanged.HasDelegate)
+            DataChanged.InvokeAsync(Data);
     }
 }
