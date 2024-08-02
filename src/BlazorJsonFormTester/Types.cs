@@ -89,6 +89,7 @@ public record Payload(
 /// <param name="MainPayload">Main payload @ object</param>
 /// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
+/// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
 public record Rocket(
     [property: Range(0, 10)]
     int EngineCount,
@@ -104,7 +105,8 @@ public record Rocket(
     MissionTargets MissionTargets,
     Payload MainPayload,
     Payload[] AdditionalPayloads,
-    int[] LaunchCoordinates
+    int[] LaunchCoordinates,
+    Dictionary<string, string> BabelFishDictionary
 );
 
 /// <summary>

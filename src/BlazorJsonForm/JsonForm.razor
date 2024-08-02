@@ -190,7 +190,7 @@
                     <MudTextField 
                         Label="@label"
                         MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
-                        Counter="schema.MaxLength is null ? 0 : schema.MaxLength"
+                        Counter="schema.MaxLength is null ? null : schema.MaxLength"
                         Clearable="true"
                         OnClearButtonClick="() => setValue?.Invoke(default)"
                         @bind-Value:get="data is null ? null : data.GetValue<string>()"
@@ -205,24 +205,43 @@
                     <MudTextField 
                         Label="@label"
                         MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
-                        Counter="schema.MaxLength is null ? 0 : schema.MaxLength"
+                        Counter="schema.MaxLength is null ? null : schema.MaxLength"
                         @bind-Value:get="data.GetValue<string>()"
-                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
                 }
 
                 break;
 
             case JsonObjectType.Object:
 
-                data = RenderObject(
-                    label, 
-                    isNullable,
-                    schema.ActualProperties,
-                    (JsonObject?)data,
-                    setValue,
-                    builder, 
-                    isTopLevel
-                );
+                if (schema.ActualSchema.AllowAdditionalProperties)
+                {
+                    if (schema.AdditionalPropertiesSchema is null)
+                        throw new Exception("Additional properties schema is null.");
+
+                    data = RenderDictionary(
+                        label, 
+                        isNullable,
+                        schema.AdditionalPropertiesSchema,
+                        (JsonObject?)data,
+                        setValue,
+                        builder, 
+                        isTopLevel
+                    );
+                }
+
+                else
+                {
+                    data = RenderObject(
+                        label, 
+                        isNullable,
+                        schema.ActualProperties,
+                        (JsonObject?)data,
+                        setValue,
+                        builder, 
+                        isTopLevel
+                    );
+                }
 
                 break;
 
@@ -356,6 +375,114 @@
                         isTopLevel: false
                     );
                 }
+            }
+
+        </div>
+
+        return data;
+    }
+
+    private JsonObject? RenderDictionary(
+        string? title,
+        bool isNullable,
+        JsonSchema valueSchema,
+        JsonObject? data,
+        Action<JsonNode?>? setValue,
+        RenderTreeBuilder builder,
+        bool isTopLevel)
+    {
+        var __builder = builder;
+
+        if (data is null && !isNullable)
+            data = new JsonObject();
+
+        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
+
+            <div style="display: flex;">
+
+                <MudText
+                    Style="flex: 1"
+                    Typo="Typo.h6">
+                    @title
+                </MudText>
+
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
+                            OnClick="() => setValue?.Invoke(default)"
+                            Size="Size.Small"
+                            Icon="@Icons.Material.Filled.Clear" />
+                    </MudTooltip>
+                }
+
+            </div>
+
+            @if (data is null)
+            {
+                <MudButton 
+                    OnClick="() => setValue?.Invoke(new JsonObject())"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary">
+                    Create
+                </MudButton>
+            }
+
+            else
+            {
+                foreach (var (key, value) in data)
+                {
+                    <div style="display: flex; flex-direction: column;">
+
+                        <MudTextField 
+                            Variant="Variant.Text"
+                            Value="key" />
+
+                        @RenderWithDisposableReturnValue(
+                            "Test",
+                            valueSchema,
+                            value,
+                            setValue: value =>
+                            {
+                                data[key] = value;
+
+                                if (DataChanged.HasDelegate)
+                                    DataChanged.InvokeAsync(Data);
+                            },
+                            builder,
+                            isNullable: false,
+                            isTopLevel: false
+                        )
+
+                    </div>
+                }
+
+                <div style="margin-left: auto; margin-right: auto;">
+                    <MudIconButton 
+                        Icon="@Icons.Material.Filled.Add"
+                        OnClick="() => 
+                        {
+                            /* TODO maybe this can be replaced with null? */
+                            var item = Render(
+                                string.Empty,
+                                valueSchema,
+                                data: default,
+                                setValue: default,
+                                /* TODO the builder is useless here */
+                                builder: new RenderTreeBuilder(),
+                                isNullable: false,
+                                isTopLevel: false
+                            );
+
+                            data.Add(string.Empty, item);
+
+                            if (DataChanged.HasDelegate)
+                                DataChanged.InvokeAsync(Data);
+                        }" />
+
+                </div>
             }
 
         </div>
