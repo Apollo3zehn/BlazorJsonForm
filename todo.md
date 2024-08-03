@@ -1,6 +1,4 @@
 - Enum XML comment description
-- Dict support?
-- nullable version (enum is missing)
 - target framework version netstandard2.1?
 - optimize space usage (margin, etc)
 - prettify delete and set to null buttons

@@ -34,6 +34,9 @@
     [Parameter]
     public EventCallback<JsonNode?> DataChanged { get; set; }
 
+    [Inject]
+    private IDialogService DialogService { get; set; } = default!;
+
     protected override void OnInitialized()
     {
         _renderFragement = builder =>
@@ -218,6 +221,7 @@
                 break;
 
             case JsonObjectType.Object:
+            case JsonObjectType.Object | JsonObjectType.Null:
 
                 if (schema.ActualSchema.AllowAdditionalProperties)
                 {
@@ -439,55 +443,99 @@
             {
                 foreach (var (key, value) in data)
                 {
-                    <div style="display: flex; flex-direction: column;">
+                    <div style="display: flex;">
 
-                        <MudTextField 
-                            Variant="Variant.Text"
-                            Value="key" />
+                        <div style="display: flex; flex-direction: column; flex: 1">
 
-                        @RenderWithDisposableReturnValue(
-                            "Test",
-                            valueSchema,
-                            value,
-                            setValue: value =>
-                            {
-                                data[key] = value;
+                            <MudTextField
+                                Label="Key"
+                                Variant="Variant.Text"
+                                @bind-Value:get="key"
+                                @bind-Value:set="newKey => 
+                                {
+                                    var value = data[key];
 
-                                if (DataChanged.HasDelegate)
-                                    DataChanged.InvokeAsync(Data);
-                            },
-                            builder,
-                            isNullable: false,
-                            isTopLevel: false
-                        )
+                                    data.Remove(key);
+                                    data[newKey] = value;
+
+                                    if (DataChanged.HasDelegate)
+                                        DataChanged.InvokeAsync(Data);
+                                }" />
+
+                            @RenderWithDisposableReturnValue(
+                                "Value",
+                                valueSchema,
+                                value,
+                                setValue: value =>
+                                {
+                                    data[key] = value;
+
+                                    if (DataChanged.HasDelegate)
+                                        DataChanged.InvokeAsync(Data);
+                                },
+                                builder,
+                                isNullable: false,
+                                isTopLevel: false
+                            )
+
+                        </div>
+
+                        <div>
+
+                            <MudTooltip Text="Delete entry">
+                                <MudIconButton
+                                    OnClick="@(async () => 
+                                    {
+                                        var result = await DialogService.ShowMessageBox(
+                                            "Confirmation required",
+                                            "Are you sure to delete the selected element?", 
+                                            yesText: "Yes", cancelText: "Cancel"
+                                        );
+
+                                        if (result.HasValue && result.Value)
+                                        {
+                                            data.Remove(key);
+
+                                            if (DataChanged.HasDelegate)
+                                                await DataChanged.InvokeAsync(Data);
+                                        }
+                                    })"
+                                    Size="Size.Small"
+                                    Icon="@Icons.Material.Filled.Delete" />
+                            </MudTooltip>
+
+                        </div>
 
                     </div>
                 }
 
-                <div style="margin-left: auto; margin-right: auto;">
-                    <MudIconButton 
-                        Icon="@Icons.Material.Filled.Add"
-                        OnClick="() => 
-                        {
-                            /* TODO maybe this can be replaced with null? */
-                            var item = Render(
-                                string.Empty,
-                                valueSchema,
-                                data: default,
-                                setValue: default,
-                                /* TODO the builder is useless here */
-                                builder: new RenderTreeBuilder(),
-                                isNullable: false,
-                                isTopLevel: false
-                            );
+                @if (!data.ContainsKey(string.Empty))
+                {
+                    <div style="margin-left: auto; margin-right: auto;">
+                        <MudIconButton 
+                            Icon="@Icons.Material.Filled.Add"
+                            OnClick="() => 
+                            {
+                                /* TODO maybe this can be replaced with null? */
+                                var item = Render(
+                                    string.Empty,
+                                    valueSchema,
+                                    data: default,
+                                    setValue: default,
+                                    /* TODO the builder is useless here */
+                                    builder: new RenderTreeBuilder(),
+                                    isNullable: false,
+                                    isTopLevel: false
+                                );
 
-                            data.Add(string.Empty, item);
+                                data.Add(string.Empty, item);
 
-                            if (DataChanged.HasDelegate)
-                                DataChanged.InvokeAsync(Data);
-                        }" />
+                                if (DataChanged.HasDelegate)
+                                    DataChanged.InvokeAsync(Data);
+                            }" />
 
-                </div>
+                    </div>
+                }
             }
 
         </div>
@@ -786,12 +834,21 @@
             DataChanged.InvokeAsync(Data);
     }
 
-    private void Delete(JsonArray data, int position)
+    private async Task Delete(JsonArray data, int position)
     {
-        data.RemoveAt(position);
+        var result = await DialogService.ShowMessageBox(
+            "Confirmation required",
+            "Are you sure to delete the selected element?", 
+            yesText: "Yes", cancelText: "Cancel"
+        );
 
-        if (DataChanged.HasDelegate)
-            DataChanged.InvokeAsync(Data);
+        if (result.HasValue && result.Value)
+        {
+            data.RemoveAt(position);
+
+            if (DataChanged.HasDelegate)
+                await DataChanged.InvokeAsync(Data);
+        }
     }
 
     private RegexMask GetRegexMask(string mask)
