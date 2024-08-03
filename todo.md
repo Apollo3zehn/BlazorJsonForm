@@ -1,5 +1,4 @@
 - Enum XML comment description
-- target framework version netstandard2.1?
 - optimize space usage (margin, etc)
 - prettify delete and set to null buttons
 - solve TODO: "TODO maybe this can be replaced with null?"

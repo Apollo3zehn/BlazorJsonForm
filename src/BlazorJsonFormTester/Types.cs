@@ -30,7 +30,7 @@ public enum MissionTargets
     /// <summary>
     /// Merkur
     /// </summary>
-    Merkur = 1 << 0,
+    Mercury = 1 << 0,
 
     /// <summary>
     /// Venus
@@ -60,7 +60,7 @@ public enum MissionTargets
     /// <summary>
     /// Neptun
     /// </summary>
-    Neptun = 1 << 6,
+    Neptune = 1 << 6,
 }
 
 /// <summary>
