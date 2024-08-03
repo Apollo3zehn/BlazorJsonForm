@@ -4,6 +4,7 @@
 @using System.Text.Json
 @using System.Runtime.CompilerServices
 @using System.Numerics
+@using System.Text.RegularExpressions
 
 <div style="display: flex; flex-direction: column;">
     @_renderFragement
@@ -12,6 +13,8 @@
 @code {
 
     private RenderFragment _renderFragement = default!;
+
+    private Dictionary<string, RegexMask> _regexMaskCache = new();
 
     /// <summary>
     /// The JSON schema to create a form for.
@@ -191,6 +194,7 @@
                         Label="@label"
                         MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
                         Counter="schema.MaxLength is null ? null : schema.MaxLength"
+                        Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
                         Clearable="true"
                         OnClearButtonClick="() => setValue?.Invoke(default)"
                         @bind-Value:get="data is null ? null : data.GetValue<string>()"
@@ -206,8 +210,9 @@
                         Label="@label"
                         MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
                         Counter="schema.MaxLength is null ? null : schema.MaxLength"
+                        Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
                         @bind-Value:get="data.GetValue<string>()"
-                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
                 }
 
                 break;
@@ -787,5 +792,25 @@
 
         if (DataChanged.HasDelegate)
             DataChanged.InvokeAsync(Data);
+    }
+
+    private RegexMask GetRegexMask(string mask)
+    {
+        if (!_regexMaskCache.TryGetValue(mask, out var regexMask))
+        {
+            regexMask = new RegexMask(mask);
+            _regexMaskCache[mask] = regexMask;
+        }
+
+        return regexMask;
+    }
+
+    private IEnumerable<string> RegexValidation(string input, string pattern)
+    {
+        if (!Regex.IsMatch(input, pattern))
+            return ["The input does not match the expected pattern"];
+
+        else
+            return Enumerable.Empty<string>();
     }
 }

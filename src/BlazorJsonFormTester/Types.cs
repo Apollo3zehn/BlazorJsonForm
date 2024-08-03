@@ -83,7 +83,8 @@ public record Payload(
 /// <param name="AmbientTemperature">Ambient temperature in °C @ float</param>
 /// <param name="Fuel">Amount of fuel in L @ double</param>
 /// <param name="EnableTelemetry">Enable telemetry @ bool</param>
-/// <param name="Message">Message from mankind @ string</param>
+/// <param name="Message">Message from mankind @ string (max length)</param>
+/// <param name="MissionDataPath">Mission data path @ string (regex)</param>
 /// <param name="Status">Rocket status @ enum of ushort</param>
 /// <param name="MissionTargets">Mission targets @ flags</param>
 /// <param name="MainPayload">Main payload @ object</param>
@@ -101,6 +102,8 @@ public record Rocket(
     bool EnableTelemetry,
     [property: StringLength(20)]
     string Message,
+    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$")]
+    string MissionDataPath,
     RocketStatus Status,
     MissionTargets MissionTargets,
     Payload MainPayload,
@@ -120,6 +123,7 @@ public record Rocket(
 /// <param name="Fuel">Amount of fuel in L @ double</param>
 /// <param name="EnableTelemetry">Enable telemetry @ bool</param>
 /// <param name="Message">Message from mankind @ string</param>
+/// <param name="MissionDataPath">Mission data path @ string (regex)</param>
 /// <param name="Status">Rocket status @ enum of ushort</param>
 /// <param name="MissionTargets">Mission targets @ flags</param>
 /// <param name="MainPayload">Main payload @ object</param>
@@ -136,6 +140,8 @@ public record Rocket_Nullable(
     bool? EnableTelemetry,
     [property: StringLength(20)]
     string? Message,
+    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$")]
+    string? MissionDataPath,
     RocketStatus? Status,
     MissionTargets? MissionTargets,
     Payload? MainPayload,

@@ -5,3 +5,5 @@
 - optimize space usage (margin, etc)
 - prettify delete and set to null buttons
 - solve TODO: "TODO maybe this can be replaced with null?"
+- https://mudblazor.com/components/form#simple-form-validation
+- attribute for help text
