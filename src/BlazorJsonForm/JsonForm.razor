@@ -63,29 +63,6 @@
         };
     }
 
-    private string RenderWithDisposableReturnValue(
-        string label, 
-        JsonSchema schema, 
-        JsonNode? data,
-        Action<JsonNode?>? setValue,
-        RenderTreeBuilder builder, 
-        bool isNullable,
-        bool isTopLevel
-    )
-    {
-        Render(
-            label, 
-            schema, 
-            data, 
-            setValue, 
-            builder,
-            isNullable,
-            isTopLevel
-        );
-
-        return string.Empty;
-    }
-
     private JsonNode? Render(
         string label,
         JsonSchema schema,
@@ -462,21 +439,23 @@
                                         DataChanged.InvokeAsync(Data);
                                 }" />
 
-                            @RenderWithDisposableReturnValue(
-                                "Value",
-                                valueSchema,
-                                value,
-                                setValue: value =>
-                                {
-                                    data[key] = value;
+                            @{
+                                data[key] = Render(
+                                    label: "Value",
+                                    valueSchema,
+                                    value,
+                                    setValue: value =>
+                                    {
+                                        data[key] = value;
 
-                                    if (DataChanged.HasDelegate)
-                                        DataChanged.InvokeAsync(Data);
-                                },
-                                builder,
-                                isNullable: false,
-                                isTopLevel: false
-                            )
+                                        if (DataChanged.HasDelegate)
+                                            DataChanged.InvokeAsync(Data);
+                                    },
+                                    builder,
+                                    isNullable: false,
+                                    isTopLevel: false
+                                );
+                            }
 
                         </div>
 
@@ -516,19 +495,7 @@
                             Icon="@Icons.Material.Filled.Add"
                             OnClick="() => 
                             {
-                                /* TODO maybe this can be replaced with null? */
-                                var item = Render(
-                                    string.Empty,
-                                    valueSchema,
-                                    data: default,
-                                    setValue: default,
-                                    /* TODO the builder is useless here */
-                                    builder: new RenderTreeBuilder(),
-                                    isNullable: false,
-                                    isTopLevel: false
-                                );
-
-                                data.Add(string.Empty, item);
+                                data.Add(string.Empty, default);
 
                                 if (DataChanged.HasDelegate)
                                     DataChanged.InvokeAsync(Data);
@@ -602,21 +569,23 @@
 
                     <div style="display: flex;">
                         <div style="flex: 1;">
-                            @RenderWithDisposableReturnValue(
-                                "#" + (i_captured + 1),
-                                schema.Item.ActualSchema,
-                                data[i_captured],
-                                setValue: value =>
-                                {
-                                    data[i_captured] = value;
+                            @{
+                                data[i_captured] = Render(
+                                    label: "#" + (i_captured + 1),
+                                    schema.Item.ActualSchema,
+                                    data[i_captured],
+                                    setValue: value =>
+                                    {
+                                        data[i_captured] = value;
 
-                                    if (DataChanged.HasDelegate)
-                                        DataChanged.InvokeAsync(Data);
-                                },
-                                builder,
-                                isNullable: false,
-                                isTopLevel: false
-                            )
+                                        if (DataChanged.HasDelegate)
+                                            DataChanged.InvokeAsync(Data);
+                                    },
+                                    builder,
+                                    isNullable: false,
+                                    isTopLevel: false
+                                )?.DeepClone();
+                            }
                         </div>
 
                         <div>
@@ -655,19 +624,7 @@
                         Icon="@Icons.Material.Filled.Add"
                         OnClick="() => 
                         {
-                            /* TODO maybe this can be replaced with null? */
-                            var item = Render(
-                                string.Empty,
-                                schema.Item.ActualSchema,
-                                data: default,
-                                setValue: default,
-                                /* TODO the builder is useless here */
-                                builder: new RenderTreeBuilder(),
-                                isNullable: false,
-                                isTopLevel: false
-                            );
-
-                            data.Add(item);
+                            data.Add(default);
 
                             if (DataChanged.HasDelegate)
                                 DataChanged.InvokeAsync(Data);
