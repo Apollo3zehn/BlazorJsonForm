@@ -585,6 +585,11 @@
                                     isNullable: false,
                                     isTopLevel: false
                                 )?.DeepClone();
+                                /* DeepClone is required to avoid exception 
+                                 * "The node already has a parent." which 
+                                 * occurs due to multiple re-renderings and
+                                 * only in combination with JsonArray.
+                                 */
                             }
                         </div>
 

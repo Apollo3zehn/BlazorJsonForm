@@ -1,4 +1,5 @@
 using BlazorJsonFormTester.Components;
+using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass 
+        = Defaults.Classes.Position.BottomCenter;
+});
 
 var app = builder.Build();
 
