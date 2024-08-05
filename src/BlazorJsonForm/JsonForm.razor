@@ -715,7 +715,7 @@
     {
         var __builder = builder;
 
-        string[] enumerationNames;
+        IEnumerable<string> enumerationNames;
 
         if (schema.ExtensionData is not null &&
             schema.ExtensionData.TryGetValue("x-enumDisplayNames", out var value) &&
@@ -726,7 +726,7 @@
 
         else
         {
-            enumerationNames = schema.EnumerationNames.ToArray();
+            enumerationNames = schema.EnumerationNames;
         }
 
         var valueNamePairs = schema
