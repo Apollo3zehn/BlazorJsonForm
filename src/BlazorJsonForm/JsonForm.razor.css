@@ -1,0 +1,4 @@
+::deep .mud-input-control.mud-input-required > .mud-input-control-input-container > .mud-input-label::after {
+    content: " *" !important;
+    color: red;
+}

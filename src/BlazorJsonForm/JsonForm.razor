@@ -156,8 +156,9 @@
                     if (data is null)
                         data = false;
 
-                    <MudSwitch 
+                    <MudSwitch
                         Label="@label"
+                        Required="true"
                         Color="Color.Primary"
                         @bind-Value:get="data.GetValue<bool>()"
                         @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
@@ -188,6 +189,7 @@
 
                     <MudTextField 
                         Label="@label"
+                        Required="true"
                         MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
                         Counter="schema.MaxLength is null ? null : schema.MaxLength"
                         Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
@@ -670,6 +672,7 @@
 
             <MudNumericField 
                 Label="@label"
+                Required="true"
                 Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
                 Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
                 @bind-Value:get="data!.GetValue<T>()"
@@ -724,6 +727,7 @@
 
             <MudSelect
                 Label="@label"
+                Required="true"
                 MultiSelection="schema.IsFlagEnumerable"
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
                 @bind-Value:get="data!.GetValue<T>()"
