@@ -1,9 +1,11 @@
+namespace BlazorJsonFormTester;
+
 using System.ComponentModel.DataAnnotations;
 
 /// <summary>
 /// The rocket status
 /// </summary>
-public enum RocketStatus: ushort
+internal enum RocketStatus: ushort
 {
     /// <summary>
     /// Ready to launch
@@ -25,7 +27,7 @@ public enum RocketStatus: ushort
 /// Mission targets
 /// </summary>
 [Flags]
-public enum MissionTargets
+internal enum MissionTargets
 {
     /// <summary>
     /// Merkur
@@ -68,7 +70,7 @@ public enum MissionTargets
 /// </summary>
 /// <param name="Name">Name</param>
 /// <param name="Weight">Weight in kg</param>
-public record Payload(
+internal record Payload(
     string Name,
     double Weight
 );
@@ -91,7 +93,7 @@ public record Payload(
 /// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
-public record Rocket(
+internal record Rocket(
     [property: Range(0, 10)]
     int EngineCount,
     byte HeadlightBrightness,
@@ -102,7 +104,10 @@ public record Rocket(
     bool EnableTelemetry,
     [property: StringLength(20)]
     string Message,
-    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), Required /* https://stackoverflow.com/a/32945086 */]
+    [property: 
+        HelperText("Example: /path/to/mission/data"),
+        RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
+        Required /* https://stackoverflow.com/a/32945086 */]
     string MissionDataPath,
     RocketStatus Status,
     MissionTargets MissionTargets,
@@ -130,7 +135,7 @@ public record Rocket(
 /// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
-public record Rocket_Nullable(
+internal record Rocket_Nullable(
     [property: Range(0, 10)]
     int? EngineCount,
     byte? HeadlightBrightness,
@@ -141,7 +146,10 @@ public record Rocket_Nullable(
     bool? EnableTelemetry,
     [property: StringLength(20)]
     string? Message,
-    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), Required /* https://stackoverflow.com/a/32945086 */]
+    [property: 
+        HelperText("Example: /path/to/mission/data"),
+        RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
+        Required /* https://stackoverflow.com/a/32945086 */]
     string? MissionDataPath,
     RocketStatus? Status,
     MissionTargets? MissionTargets,

@@ -644,6 +644,7 @@
             Required="!isNullable"
             Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
             Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
+            HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<T?>()"
             @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
     }
@@ -687,6 +688,7 @@
             Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
             Clearable="true"
             OnClearButtonClick="() => setValue?.Invoke(default)"
+            HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<string>()"
             @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
     }
@@ -717,6 +719,7 @@
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
                 Clearable="true"
                 OnClearButtonClick="() => setValue?.Invoke(default)"
+                HelperText="@(GetHelperTextOrDefault(schema))"
                 JsonValue="data"
                 @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
                 @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
@@ -738,6 +741,7 @@
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
                 Clearable="true"
                 OnClearButtonClick="() => setValue?.Invoke(default)"
+                HelperText="@(GetHelperTextOrDefault(schema))"
                 @bind-Value:get="data is null ? null : data.GetValue<T?>()"
                 @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))">
 
@@ -851,5 +855,15 @@
 
         else
             return ["The input does not match the expected pattern"];
+    }
+
+    private string? GetHelperTextOrDefault(JsonSchema schema)
+    {
+        return
+            schema.ExtensionData is not null &&
+            schema.ExtensionData.TryGetValue("x-helper-text", out var value) &&
+            value is string stringValue
+                ? stringValue
+                : null;
     }
 }

@@ -1,5 +1,4 @@
 - Enum XML comment description
 - optimize space usage (margin, etc)
 - prettify delete and set to null buttons
-- attribute for help text
 - create pipeline and git pages page
