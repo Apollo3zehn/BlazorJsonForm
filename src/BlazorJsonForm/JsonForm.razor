@@ -702,7 +702,7 @@
             OnClearButtonClick="() => setValue?.Invoke(default)"
             HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<string>()"
-        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
     }
 
     private void RenderEnum<T>(
@@ -747,10 +747,7 @@
                 EnhancedOnClearButtonClick="() => setValue?.Invoke(default)"
                 HelperText="@(GetHelperTextOrDefault(schema))"
                 @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
-                @bind-SelectedValues:set="value => 
-                {
-                    setValue?.Invoke(data = JsonValue.Create(ToFlags(value.Select(x => (T)x!))));
-                }">
+                @bind-SelectedValues:set="value => setValue?.Invoke(data = JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
 
                 @foreach (var valueNamePair in valueNamePairs)
                 {
