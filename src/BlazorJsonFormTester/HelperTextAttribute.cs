@@ -9,9 +9,9 @@ internal class HelperTextAttribute : Attribute, IJsonSchemaExtensionDataAttribut
     {
         ExtensionData = new Dictionary<string, object>()
         {
-            ["x-helper-text"] = text
+            ["x-helperText"] = text
         };
     }
 
-    public IReadOnlyDictionary<string, object> ExtensionData  { get; }
+    public IReadOnlyDictionary<string, object> ExtensionData { get; }
 }

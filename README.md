@@ -2,7 +2,7 @@
 
 Build Blazor forms from JSON Schema using MudBlazor.
 
-How to support the helper text:
+# How to: Helper text
 
 ```cs
 using NJsonSchema.Annotations;
@@ -16,7 +16,7 @@ class HelperTextAttribute : Attribute, IJsonSchemaExtensionDataAttribute
     {
         ExtensionData = new Dictionary<string, object>()
         {
-            ["x-helper-text"] = text
+            ["x-helperText"] = text
         };
     }
 
@@ -27,4 +27,46 @@ internal record MyConfigurationType(
     [property: HelperText("Example: /path/to/mission/data")],
     string MissionDataPath,
 );
+```
+
+# How to: Enum display names
+
+```cs
+using NJsonSchema.Annotations;
+
+namespace BlazorJsonFormTester;
+
+[AttributeUsage(AttributeTargets.Enum)]
+internal class EnumDisplayNameAttribute : Attribute, IJsonSchemaExtensionDataAttribute
+{
+    public EnumDisplayNameAttribute(params string[] displayNames)
+    {
+        ExtensionData = new Dictionary<string, object>()
+        {
+            ["x-enumDisplayNames"] = displayNames
+        };
+    }
+
+    public IReadOnlyDictionary<string, object> ExtensionData  { get; }
+}
+
+[EnumDisplayName(
+    "The Mercury",
+    "The Venus",
+    "The Mars",
+    "The Jupiter",
+    "The Saturn",
+    "The Uranus",
+    "The Neptune"
+)]
+internal enum MissionTarget
+{
+    Mercury,
+    Venus,
+    Mars,
+    Jupiter,
+    Saturn,
+    Uranus,
+    Neptune
+}
 ```

@@ -35,10 +35,10 @@
     public EventCallback<JsonNode?> DataChanged { get; set; }
 
     /// <summary>
-    /// The CSS flex container gap. Default: 0.3rem
+    /// The CSS flex container gap. Default: 0.5rem
     /// </summary>
     [Parameter]
-    public string Gap { get; set; } = "0.3rem";
+    public string Gap { get; set; } = "0.5rem";
 
     [Inject]
     private IDialogService DialogService { get; set; } = default!;
@@ -294,7 +294,9 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
+
+        <div style="display: flex; margin-top: 1rem; @marginLeft">
 
             <MudText
                 Style="flex: 1;"
@@ -374,7 +376,9 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
+
+        <div style="display: flex; margin-top: 1rem; @marginLeft">
 
             <MudText
                 Style="flex: 1"
@@ -520,7 +524,9 @@
         if (data is null && !isNullable)
             data = new JsonArray();
 
-        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
+
+        <div style="display: flex; margin-top: 1rem; @marginLeft">
 
             <MudText
                 Style="flex: 1"
@@ -696,7 +702,7 @@
             OnClearButtonClick="() => setValue?.Invoke(default)"
             HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<string>()"
-            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
     }
 
     private void RenderEnum<T>(
@@ -709,10 +715,24 @@
     {
         var __builder = builder;
 
+        string[] enumerationNames;
+
+        if (schema.ExtensionData is not null &&
+            schema.ExtensionData.TryGetValue("x-enumDisplayNames", out var value) &&
+            value is string[] enumDisplayNames)
+        {
+            enumerationNames = enumDisplayNames;
+        }
+
+        else
+        {
+            enumerationNames = schema.EnumerationNames.ToArray();
+        }
+
         var valueNamePairs = schema
             .Enumeration
             .Cast<T>()
-            .Zip(schema.EnumerationNames)
+            .Zip(enumerationNames)
             .ToList();
 
         if (schema.IsFlagEnumerable)
@@ -869,7 +889,7 @@
     {
         return
             schema.ExtensionData is not null &&
-            schema.ExtensionData.TryGetValue("x-helper-text", out var value) &&
+            schema.ExtensionData.TryGetValue("x-helperText", out var value) &&
             value is string stringValue
                 ? stringValue
                 : null;

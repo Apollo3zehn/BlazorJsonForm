@@ -2,72 +2,42 @@ namespace BlazorJsonFormTester;
 
 using System.ComponentModel.DataAnnotations;
 
-/// <summary>
-/// The rocket status
-/// </summary>
 internal enum RocketStatus: ushort
 {
-    /// <summary>
-    /// Ready to launch
-    /// </summary>
     Ready,
 
-    /// <summary>
-    /// Ignition
-    /// </summary>
     Ignition,
 
-    /// <summary>
-    /// Flight
-    /// </summary>
     Flight
 }
 
-/// <summary>
-/// Mission targets
-/// </summary>
 [Flags]
+[EnumDisplayName(
+    "The Mercury",
+    "The Venus",
+    "The Mars",
+    "The Jupiter",
+    "The Saturn",
+    "The Uranus",
+    "The Neptune"
+)]
 internal enum MissionTargets
 {
-    /// <summary>
-    /// Merkur
-    /// </summary>
     Mercury = 1 << 0,
 
-    /// <summary>
-    /// Venus
-    /// </summary>
     Venus = 1 << 1,
 
-    /// <summary>
-    /// Mars
-    /// </summary>
     Mars = 1 << 2,
 
-    /// <summary>
-    /// Jupiter
-    /// </summary>
     Jupiter = 1 << 3,
 
-    /// <summary>
-    /// Saturn
-    /// </summary>
     Saturn = 1 << 4,
 
-    /// <summary>
-    /// Uranus
-    /// </summary>
     Uranus = 1 << 5,
 
-    /// <summary>
-    /// Neptun
-    /// </summary>
     Neptune = 1 << 6,
 }
 
-/// <summary>
-/// A rocket payload
-/// </summary>
 /// <param name="Name">Name</param>
 /// <param name="Weight">Weight in kg</param>
 internal record Payload(
@@ -75,9 +45,6 @@ internal record Payload(
     double Weight
 );
 
-/// <summary>
-/// A rocket
-/// </summary>
 /// <param name="EngineCount">Number of engines @ int (0 &lt;= value &lt;= 10)</param>
 /// <param name="HeadlightBrightness">Headlight brightness @ byte</param>
 /// <param name="ImprobabilityDriveFlux">Flux of the improbability drive @ long</param>
@@ -134,9 +101,6 @@ internal record Rocket(
     Dictionary<string, string> BabelFishDictionary
 );
 
-/// <summary>
-/// A rocket
-/// </summary>
 /// <param name="EngineCount">Number of engines @ int (0 &lt;= value &lt;= 10)</param>
 /// <param name="HeadlightBrightness">Headlight brightness @ byte</param>
 /// <param name="ImprobabilityDriveFlux">Flux of the improbability drive @ long</param>
