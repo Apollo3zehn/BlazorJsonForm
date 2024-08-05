@@ -294,29 +294,29 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+
+            <MudText
+                Style="flex: 1;"
+                Typo="Typo.subtitle2">
+                @title
+            </MudText>
+
+            @if (data is not null && isNullable)
+            {
+                <MudTooltip Text="Set to null">
+                    <MudIconButton
+                        OnClick="() => setValue?.Invoke(default)"
+                        Size="Size.Small"
+                        Icon="@Icons.Material.Filled.Clear" />
+                </MudTooltip>
+            }
+
+        </div>
+
+        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
-
-            <div style="display: flex;">
-
-                <MudText
-                    Style="flex: 1; margin-top: 1rem;"
-                    Typo="Typo.subtitle1">
-                    @title
-                </MudText>
-
-                @if (data is not null && isNullable)
-                {
-                    <MudTooltip Text="Set to null">
-                        <MudIconButton
-                            OnClick="() => setValue?.Invoke(default)"
-                            Size="Size.Small"
-                            Icon="@Icons.Material.Filled.Clear" />
-                    </MudTooltip>
-                }
-
-            </div>
 
             @if (data is null)
             {
@@ -374,29 +374,29 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+
+            <MudText
+                Style="flex: 1"
+                Typo="Typo.subtitle2">
+                @title
+            </MudText>
+
+            @if (data is not null && isNullable)
+            {
+                <MudTooltip Text="Set to null">
+                    <MudIconButton
+                        OnClick="() => setValue?.Invoke(default)"
+                        Size="Size.Small"
+                        Icon="@Icons.Material.Filled.Clear" />
+                </MudTooltip>
+            }
+
+        </div>
+
+        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
-
-            <div style="display: flex;">
-
-                <MudText
-                    Style="flex: 1"
-                    Typo="Typo.subtitle1">
-                    @title
-                </MudText>
-
-                @if (data is not null && isNullable)
-                {
-                    <MudTooltip Text="Set to null">
-                        <MudIconButton
-                            OnClick="() => setValue?.Invoke(default)"
-                            Size="Size.Small"
-                            Icon="@Icons.Material.Filled.Clear" />
-                    </MudTooltip>
-                }
-
-            </div>
 
             @if (data is null)
             {
@@ -485,6 +485,7 @@
                     <div style="margin-left: auto; margin-right: auto;">
                         <MudIconButton 
                             Icon="@Icons.Material.Filled.Add"
+                            Color="Color.Primary"
                             OnClick="() => 
                             {
                                 data.Add(string.Empty, default);
@@ -519,29 +520,29 @@
         if (data is null && !isNullable)
             data = new JsonArray();
 
-        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+        <div style="display: flex; margin-left: 1rem; margin-top: 1rem;">
+
+            <MudText
+                Style="flex: 1"
+                Typo="Typo.subtitle2">
+                @title
+            </MudText>
+
+            @if (data is not null && isNullable)
+            {
+                <MudTooltip Text="Set to null">
+                    <MudIconButton
+                        OnClick="() => setValue?.Invoke(default)"
+                        Size="Size.Small"
+                        Icon="@Icons.Material.Filled.Clear" />
+                </MudTooltip>
+            }
+
+        </div>
+
+        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
-
-            <div style="display: flex;">
-
-                <MudText
-                    Style="flex: 1"
-                    Typo="Typo.subtitle1">
-                    @title
-                </MudText>
-
-                @if (data is not null && isNullable)
-                {
-                    <MudTooltip Text="Set to null">
-                        <MudIconButton
-                            OnClick="() => setValue?.Invoke(default)"
-                            Size="Size.Small"
-                            Icon="@Icons.Material.Filled.Clear" />
-                    </MudTooltip>
-                }
-
-            </div>
 
             @if (data is null)
             {
@@ -617,6 +618,7 @@
                 <div style="margin-left: auto; margin-right: auto;">
                     <MudIconButton 
                         Icon="@Icons.Material.Filled.Add"
+                        Color="Color.Primary"
                         OnClick="() => 
                         {
                             data.Add(default);
