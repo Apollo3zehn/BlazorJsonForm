@@ -8,16 +8,48 @@
 
 @code
 {
-    [Parameter]
-    public JsonValue? JsonValue { get; set; }
+     /* Problem:
+     * 
+     * When we have a MudSelect in combination with MultiSelection="true", the
+     * validation function is called before the property SelectedValues is set,
+     * which renders the validation function useles. The task is not to workaround
+     * this issue.
+    */
+
+    private bool _isCleared;
 
     /* https://github.com/MudBlazor/MudBlazor/issues/4328#issuecomment-1086940659 */
     protected override bool HasValue(T value)
     {
         if (MultiSelection)
-            return JsonValue is not null;
+        {
+            var hasValue = !_isCleared;
+
+            if (_isCleared)
+                _isCleared = false;
+
+            return hasValue;
+        }
 
         else
             return base.HasValue(value);
     }
+
+#pragma warning disable BL0007
+    [Parameter]
+    public Action EnhancedOnClearButtonClick
+    {
+        set
+        {
+            Action realCallback = () =>
+            {
+                _isCleared = true;
+                Validate();
+                value();
+            };
+
+            OnClearButtonClick = new EventCallback<MouseEventArgs>(this, realCallback);
+        }
+    }
+#pragma warning restore BL0007
 }

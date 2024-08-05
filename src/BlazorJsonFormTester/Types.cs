@@ -94,26 +94,43 @@ internal record Payload(
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
 internal record Rocket(
+
     [property: Range(0, 10)]
     int EngineCount,
+
     byte HeadlightBrightness,
+
     long ImprobabilityDriveFlux,
+
     ulong Storage,
+
     float AmbientTemperature,
+
     double Fuel,
+
     bool EnableTelemetry,
+
     [property: StringLength(20)]
     string Message,
-    [property: 
-        HelperText("Example: /path/to/mission/data"),
-        RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
-        Required /* https://stackoverflow.com/a/32945086 */]
+
+    [
+        property: 
+            HelperText("Example: /path/to/mission/data"),
+            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
+            Required /* https://stackoverflow.com/a/32945086 */
+    ]
     string MissionDataPath,
+
     RocketStatus Status,
+
     MissionTargets MissionTargets,
+
     Payload MainPayload,
+
     Payload[] AdditionalPayloads,
+
     int[] LaunchCoordinates,
+
     Dictionary<string, string> BabelFishDictionary
 );
 
@@ -136,25 +153,43 @@ internal record Rocket(
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
 internal record Rocket_Nullable(
+
     [property: Range(0, 10)]
     int? EngineCount,
+
     byte? HeadlightBrightness,
+
     long? ImprobabilityDriveFlux,
+
     ulong? Storage,
+
     float? AmbientTemperature,
+
     double? Fuel,
+
     bool? EnableTelemetry,
+
     [property: StringLength(20)]
     string? Message,
-    [property: 
-        HelperText("Example: /path/to/mission/data"),
-        RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
-        Required /* https://stackoverflow.com/a/32945086 */]
+
+    [
+        property:
+            HelperText("Example: /path/to/mission/data"),
+            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
+            Required /* https://stackoverflow.com/a/32945086 */
+    ]
+    
     string? MissionDataPath,
+
     RocketStatus? Status,
+
     MissionTargets? MissionTargets,
+
     Payload? MainPayload,
+
     Payload?[]? AdditionalPayloads,
+
     int[]? LaunchCoordinates,
+
     Dictionary<string, string>? BabelFishDictionary
 );

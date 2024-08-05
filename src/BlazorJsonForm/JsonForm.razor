@@ -34,6 +34,12 @@
     [Parameter]
     public EventCallback<JsonNode?> DataChanged { get; set; }
 
+    /// <summary>
+    /// The CSS flex container gap. Default: 0.3rem
+    /// </summary>
+    [Parameter]
+    public string Gap { get; set; } = "0.3rem";
+
     [Inject]
     private IDialogService DialogService { get; set; } = default!;
 
@@ -288,15 +294,15 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
-        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
+        <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             <div style="display: flex;">
 
                 <MudText
-                    Style="flex: 1"
-                    Typo="Typo.h6">
+                    Style="flex: 1; margin-top: 1rem;"
+                    Typo="Typo.subtitle1">
                     @title
                 </MudText>
 
@@ -368,15 +374,15 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
+        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
-        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
+        <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             <div style="display: flex;">
 
                 <MudText
                     Style="flex: 1"
-                    Typo="Typo.h6">
+                    Typo="Typo.subtitle1">
                     @title
                 </MudText>
 
@@ -515,13 +521,13 @@
 
         var margin = isTopLevel ? "" : " margin-left: 1rem; margin-top: 1rem; margin-bottom: 1rem;";
 
-        <div style="display: flex; flex-direction: column; gap: 1rem;@margin">
+        <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             <div style="display: flex;">
 
                 <MudText
                     Style="flex: 1"
-                    Typo="Typo.h6">
+                    Typo="Typo.subtitle1">
                     @title
                 </MudText>
 
@@ -556,7 +562,7 @@
                     <div style="display: flex;">
                         <div style="flex: 1;">
                             @{
-                                data[i_captured] = Render(
+                                var newData = Render(
                                     label: "#" + (i_captured + 1),
                                     schema.Item.ActualSchema,
                                     data[i_captured],
@@ -570,12 +576,10 @@
                                     builder,
                                     isNullable: false,
                                     isTopLevel: false
-                                )?.DeepClone();
-                                /* DeepClone is required to avoid exception 
-                                 * "The node already has a parent." which 
-                                 * occurs due to multiple re-renderings and
-                                 * only in combination with JsonArray.
-                                 */
+                                );
+
+                                if (newData is null || newData.Parent is null)
+                                    data[i_captured] = newData;
                             }
                         </div>
 
@@ -718,11 +722,13 @@
                 MultiSelection="true"
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
                 Clearable="true"
-                OnClearButtonClick="() => setValue?.Invoke(default)"
+                EnhancedOnClearButtonClick="() => setValue?.Invoke(default)"
                 HelperText="@(GetHelperTextOrDefault(schema))"
-                JsonValue="data"
                 @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
-                @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
+                @bind-SelectedValues:set="value => 
+                {
+                    setValue?.Invoke(data = JsonValue.Create(ToFlags(value.Select(x => (T)x!))));
+                }">
 
                 @foreach (var valueNamePair in valueNamePairs)
                 {
