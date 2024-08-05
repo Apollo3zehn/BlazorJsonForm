@@ -102,7 +102,7 @@ public record Rocket(
     bool EnableTelemetry,
     [property: StringLength(20)]
     string Message,
-    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$")]
+    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), Required /* https://stackoverflow.com/a/32945086 */]
     string MissionDataPath,
     RocketStatus Status,
     MissionTargets MissionTargets,
@@ -141,7 +141,7 @@ public record Rocket_Nullable(
     bool? EnableTelemetry,
     [property: StringLength(20)]
     string? Message,
-    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$")]
+    [property: RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), Required /* https://stackoverflow.com/a/32945086 */]
     string? MissionDataPath,
     RocketStatus? Status,
     MissionTargets? MissionTargets,

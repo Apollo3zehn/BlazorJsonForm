@@ -1,5 +1,5 @@
 - Enum XML comment description
 - optimize space usage (margin, etc)
 - prettify delete and set to null buttons
-- Also validate MudForm before Deserializing and validating the result
 - attribute for help text
+- create pipeline and git pages page

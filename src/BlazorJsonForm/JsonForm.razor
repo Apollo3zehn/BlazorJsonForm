@@ -86,28 +86,28 @@
                     var enumType = schema.Enumeration.ElementAt(0)!.GetType();
 
                     if (enumType == typeof(byte))
-                        data = RenderEnum<byte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<byte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(sbyte))
-                        data = RenderEnum<sbyte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<sbyte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(ushort))
-                        data = RenderEnum<ushort>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<ushort>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(short))
-                        data = RenderEnum<short>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<short>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(uint))
-                        data = RenderEnum<uint>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<uint>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(int))
-                        data = RenderEnum<int>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<int>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(ulong))
-                        data = RenderEnum<ulong>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<ulong>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else if (enumType == typeof(long))
-                        data = RenderEnum<long>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        RenderEnum<long>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
 
                     else
                         throw new Exception($"Unexpected enum type {enumType.FullName}");
@@ -115,13 +115,24 @@
 
                 else
                 {
-                    data = schema.Format switch
+                    switch (schema.Format)
                     {
-                        "byte" => RenderNumeric<byte>(label, isNullable, schema, (JsonValue?)data, setValue, builder),
-                        "uint64" => RenderNumeric<ulong>(label, isNullable, schema, (JsonValue?)data, setValue, builder),
-                        "int64" => RenderNumeric<long>(label, isNullable, schema, (JsonValue?)data, setValue, builder),
-                        _ => RenderNumeric<int>(label, isNullable, schema, (JsonValue?)data, setValue, builder)
-                    };
+                        case "byte":
+                            RenderNumeric<byte>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                            break;
+
+                        case "uint64":
+                            RenderNumeric<ulong>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                            break;
+
+                        case "int64":
+                            RenderNumeric<long>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                            break;
+
+                        default:
+                            RenderNumeric<int>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                            break;
+                    }
                 }
 
                 break;
@@ -129,73 +140,46 @@
             case JsonObjectType.Number:
             case JsonObjectType.Number | JsonObjectType.Null:
 
-                data = schema.Format switch
+                switch (schema.Format)
                 {
-                    "float" => RenderNumeric<float>(label, isNullable, schema, (JsonValue?)data, setValue, builder),
-                    "double" => RenderNumeric<double>(label, isNullable, schema, (JsonValue?)data, setValue, builder),
-                    _ => throw new Exception($"schema.Format {schema.Format} is not (yet) supported")
-                };
+                    case "float":
+                        RenderNumeric<float>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        break;
+
+                    case "double":
+                        RenderNumeric<double>(label, isNullable, schema, (JsonValue?)data, setValue, builder);
+                        break;
+
+                    default:
+                        throw new Exception($"schema.Format {schema.Format} is not (yet) supported");
+                }
 
                 break;
 
             case JsonObjectType.Boolean:
             case JsonObjectType.Boolean | JsonObjectType.Null:
 
-                if (isNullable)
-                {
-                    <MudCheckBox
-                        Label="@label"
-                        Color="@Color.Primary"
-                        TriState="true"
-                        @bind-Value:get="data is null ? default(bool?) : data.GetValue<bool>()"
-                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-                }
-
-                else
-                {
-                    if (data is null)
-                        data = false;
-
-                    <MudSwitch
-                        Label="@label"
-                        Required="true"
-                        Color="Color.Primary"
-                        @bind-Value:get="data.GetValue<bool>()"
-                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-                }
+                RenderBoolean(
+                    label,
+                    isNullable,
+                    (JsonValue?)data,
+                    setValue,
+                    builder
+                );
 
                 break;
 
             case JsonObjectType.String:
             case JsonObjectType.String | JsonObjectType.Null:
 
-                if (isNullable)
-                {
-                    <MudTextField 
-                        Label="@label"
-                        MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
-                        Counter="schema.MaxLength is null ? null : schema.MaxLength"
-                        Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
-                        Clearable="true"
-                        OnClearButtonClick="() => setValue?.Invoke(default)"
-                        @bind-Value:get="data is null ? null : data.GetValue<string>()"
-                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-                }
-
-                else
-                {
-                    if (data is null)
-                        data = string.Empty;
-
-                    <MudTextField 
-                        Label="@label"
-                        Required="true"
-                        MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
-                        Counter="schema.MaxLength is null ? null : schema.MaxLength"
-                        Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
-                        @bind-Value:get="data.GetValue<string>()"
-                        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-                }
+                RenderString(
+                    label,
+                    isNullable,
+                    schema,
+                    (JsonValue?)data,
+                    setValue,
+                    builder
+                );
 
                 break;
 
@@ -645,7 +629,7 @@
         return data;
     }
 
-    private JsonValue? RenderNumeric<T>(
+    private void RenderNumeric<T>(
         string label,
         bool isNullable,
         JsonSchema schema,
@@ -655,34 +639,59 @@
     {
         var __builder = builder;
 
-        if (isNullable)
-        {
-            <MudNumericField
-                Label="@label"
-                Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
-                Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
-                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
-                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-        }
-
-        else
-        {
-            if (data is null)
-                data = JsonValue.Create(T.Zero);
-
-            <MudNumericField 
-                Label="@label"
-                Required="true"
-                Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
-                Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
-                @bind-Value:get="data!.GetValue<T>()"
+        <MudNumericField
+            Label="@label"
+            Required="!isNullable"
+            Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
+            Max="schema.Maximum.HasValue ? T.CreateChecked(schema.Maximum.Value) : T.MaxValue"
+            @bind-Value:get="data is null ? null : data.GetValue<T?>()"
             @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
-        }
-
-        return data;
     }
 
-    private JsonValue? RenderEnum<T>(
+    private void RenderBoolean(
+        string label,
+        bool isNullable,
+        JsonValue? data,
+        Action<JsonNode?>? setValue,
+        RenderTreeBuilder builder
+    )
+    {
+        var __builder = builder;
+
+        <MudCheckBox
+            Class="@(isNullable ? null : "mud-input-required")"
+            Label="@label"
+            Color="@Color.Primary"
+            TriState="true"
+            Validation="isNullable ? null : (Func<bool?, IEnumerable<string>>)(BooleanValidation)"
+            @bind-Value:get="data is null ? default(bool?) : data.GetValue<bool>()"
+            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+    }
+
+    private void RenderString(
+        string label,
+        bool isNullable,
+        JsonSchema schema,
+        JsonValue? data,
+        Action<JsonNode?>? setValue,
+        RenderTreeBuilder builder
+    )
+    {
+        var __builder = builder;
+
+        <MudTextField
+            Label="@label"
+            Required="!isNullable"
+            MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
+            Counter="schema.MaxLength is null ? null : schema.MaxLength"
+            Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
+            Clearable="true"
+            OnClearButtonClick="() => setValue?.Invoke(default)"
+            @bind-Value:get="data is null ? null : data.GetValue<string>()"
+            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+    }
+
+    private void RenderEnum<T>(
         string label,
         bool isNullable,
         JsonSchema schema,
@@ -698,17 +707,17 @@
             .Zip(schema.EnumerationNames)
             .ToList();
 
-        if (isNullable)
+        if (schema.IsFlagEnumerable)
         {
-            <MudSelect
+            <MudSelectEnhanced
                 T="T?"
                 Label="@label"
-                MultiSelection="schema.IsFlagEnumerable"
+                Required="!isNullable"
+                MultiSelection="true"
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
                 Clearable="true"
                 OnClearButtonClick="() => setValue?.Invoke(default)"
-                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
-                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))"
+                JsonValue="data"
                 @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
                 @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
 
@@ -717,33 +726,28 @@
                     <MudSelectItem Value="(T?)valueNamePair.First" />
                 }
 
-            </MudSelect>
+            </MudSelectEnhanced>
         }
 
         else
         {
-            if (data is null)
-                data = JsonValue.Create(T.Zero);
-
             <MudSelect
+                T="T?"
                 Label="@label"
-                Required="true"
-                MultiSelection="schema.IsFlagEnumerable"
+                Required="!isNullable"
                 ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
-                @bind-Value:get="data!.GetValue<T>()"
-                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))"
-                @bind-SelectedValues:get="FromFlags(data.GetValue<T>())"
-                @bind-SelectedValues:set="value => setValue?.Invoke(JsonValue.Create(ToFlags(value)))">
+                Clearable="true"
+                OnClearButtonClick="() => setValue?.Invoke(default)"
+                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
+                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))">
 
                 @foreach (var valueNamePair in valueNamePairs)
                 {
-                    <MudSelectItem Value="valueNamePair.First" />
+                    <MudSelectItem Value="(T?)valueNamePair.First" />
                 }
 
             </MudSelect>
         }
-
-        return data;
     }
 
     private IEnumerable<T> FromFlags<T>(T value) where T : INumber<T>, IBitwiseOperators<T, T, T>
@@ -828,12 +832,24 @@
         return regexMask;
     }
 
-    private IEnumerable<string> RegexValidation(string input, string pattern)
+    private IEnumerable<string> BooleanValidation(bool? value)
     {
-        if (!Regex.IsMatch(input, pattern))
-            return ["The input does not match the expected pattern"];
+        if (value.HasValue)
+            return Enumerable.Empty<string>();
 
         else
+            return ["Required"];
+    }
+
+    private IEnumerable<string> RegexValidation(string? input, string pattern)
+    {
+        if (input is null)
+            return ["Required"];
+
+        else if (Regex.IsMatch(input, pattern))
             return Enumerable.Empty<string>();
+
+        else
+            return ["The input does not match the expected pattern"];
     }
 }

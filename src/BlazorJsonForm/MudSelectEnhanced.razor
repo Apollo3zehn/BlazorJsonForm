@@ -1,0 +1,23 @@
+@using System.Text.Json.Nodes
+@inherits MudSelect<T>
+@typeparam T
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code
+{
+    [Parameter]
+    public JsonValue? JsonValue { get; set; }
+
+    /* https://github.com/MudBlazor/MudBlazor/issues/4328#issuecomment-1086940659 */
+    protected override bool HasValue(T value)
+    {
+        if (MultiSelection)
+            return JsonValue is not null;
+
+        else
+            return base.HasValue(value);
+    }
+}

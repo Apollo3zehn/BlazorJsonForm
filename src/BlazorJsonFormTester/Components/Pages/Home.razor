@@ -37,9 +37,11 @@
         <div style="flex: 1">
             <MudText Typo="Typo.h4" Style="margin-bottom: 1rem;">Form</MudText>
 
-            <JsonForm
-                Schema="_schema"
-                @bind-Data="_data" />
+            <MudForm @ref="_form">
+                <JsonForm
+                    Schema="_schema"
+                    @bind-Data="_data" />
+            </MudForm>
         </div>
 
         <div style="flex: 1; font-family: 'Courier New', Courier, monospace; font-size: x-small;">
@@ -57,17 +59,28 @@
 
             <div style="margin-top: 2rem">
                 <MudButton 
+                    Style="width: 12rem;"
+                    OnClick="ValidateForm"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary">
+                    Validate Form
+                </MudButton>
+            </div>
+
+            <div style="margin-top: 2rem">
+                <MudButton 
+                    Style="width: 12rem;"
                     OnClick="() =>
                     {
                         if (_nullableMode)
-                            DeserializeAndValidate<Rocket_Nullable>();
+                            ValidateObject<Rocket_Nullable>();
                         
                         else
-                            DeserializeAndValidate<Rocket>();
+                            ValidateObject<Rocket>();
                     }"
                     Variant="Variant.Outlined"
-                    Color="Color.Primary">
-                    Deserialize and Validate
+                    Color="Color.Secondary">
+                    Validate Object
                 </MudButton>
             </div>
             
@@ -77,6 +90,7 @@
 </div>
 
 @code {
+    private MudForm _form = default!;
 
     private bool _nullableMode;
 
@@ -93,7 +107,28 @@
         _data = default;
     }
 
-    private void DeserializeAndValidate<T>()
+    private async Task ValidateForm()
+    {
+        await _form.Validate();
+
+        if (_form.IsValid)
+        {
+            Snackbar.Add(
+                "The form is valid", 
+                Severity.Success
+            );
+        }
+
+        else
+        {
+            Snackbar.Add(
+                $"There were validation errors.",
+                Severity.Error
+            );
+        }
+}
+
+    private void ValidateObject<T>()
     {
         try
         {
