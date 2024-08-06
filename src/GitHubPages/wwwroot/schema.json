@@ -1,0 +1,169 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Rocket",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "MissionDataPath"
+    ],
+    "properties": {
+      "EngineCount": {
+        "type": "integer",
+        "description": "Number of engines @ int (0 <= value <= 10)",
+        "format": "int32",
+        "maximum": 10.0,
+        "minimum": 0.0
+      },
+      "HeadlightBrightness": {
+        "type": "integer",
+        "description": "Headlight brightness @ byte",
+        "format": "byte"
+      },
+      "ImprobabilityDriveFlux": {
+        "type": "integer",
+        "description": "Flux of the improbability drive @ long",
+        "format": "int64"
+      },
+      "Storage": {
+        "type": "integer",
+        "description": "Data recording storage size in bytes @ ulong",
+        "format": "uint64"
+      },
+      "AmbientTemperature": {
+        "type": "number",
+        "description": "Ambient temperature in °C @ float",
+        "format": "float"
+      },
+      "Fuel": {
+        "type": "number",
+        "description": "Amount of fuel in L @ double",
+        "format": "double"
+      },
+      "EnableTelemetry": {
+        "type": "boolean",
+        "description": "Enable telemetry @ bool"
+      },
+      "Message": {
+        "type": "string",
+        "description": "Message from mankind @ string (max length)",
+        "maxLength": 20,
+        "minLength": 0
+      },
+      "MissionDataPath": {
+        "type": "string",
+        "description": "Mission data path @ string (regex)",
+        "minLength": 1,
+        "pattern": "^(?:\\/[a-zA-Z_][a-zA-Z_0-9]*)+$",
+        "x-helperText": "Example: /path/to/mission/data"
+      },
+      "Status": {
+        "description": "Rocket status @ enum of ushort",
+        "oneOf": [
+          {
+            "$ref": "#/definitions/RocketStatus"
+          }
+        ]
+      },
+      "MissionTargets": {
+        "description": "Mission targets @ flags",
+        "oneOf": [
+          {
+            "$ref": "#/definitions/MissionTargets"
+          }
+        ]
+      },
+      "MainPayload": {
+        "description": "Main payload @ object",
+        "oneOf": [
+          {
+            "$ref": "#/definitions/Payload"
+          }
+        ]
+      },
+      "AdditionalPayloads": {
+        "type": "array",
+        "description": "Additional payloads @ array of objects",
+        "items": {
+          "$ref": "#/definitions/Payload"
+        }
+      },
+      "LaunchCoordinates": {
+        "type": "array",
+        "description": "Launch coordinates @ array of ints",
+        "items": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "BabelFishDictionary": {
+        "type": "object",
+        "description": "Babelfish dictionary @ dict of string and string",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "definitions": {
+      "RocketStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Ready",
+          "Ignition",
+          "Flight"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "MissionTargets": {
+        "type": "integer",
+        "description": "",
+        "x-enumFlags": true,
+        "x-enumNames": [
+          "Mercury",
+          "Venus",
+          "Mars",
+          "Jupiter",
+          "Saturn",
+          "Uranus",
+          "Neptune"
+        ],
+        "enum": [
+          1,
+          2,
+          4,
+          8,
+          16,
+          32,
+          64
+        ],
+        "x-enumDisplayNames": [
+          "The Mercury",
+          "The Venus",
+          "The Mars",
+          "The Jupiter",
+          "The Saturn",
+          "The Uranus",
+          "The Neptune"
+        ]
+      },
+      "Payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "Weight": {
+            "type": "number",
+            "description": "Weight in kg",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
