@@ -89,19 +89,33 @@
 </div>
 
 @code {
+
     private MudForm _form = default!;
 
     private bool _nullableMode;
 
     private JsonNode? _data;
 
-    private JsonSchema _schema = JsonSchema.FromType<Rocket>();
+    private JsonSchema _schema = default!;
+
+    [Parameter]
+    public JsonSchema? Schema { get; set; }
+
+    [Parameter]
+    public JsonSchema? Schema_Nullable { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _schema = Schema is null 
+            ? JsonSchema.FromType<Rocket>() 
+            : Schema;
+    }
 
     private void OnModeChanged()
     {
         _schema = _nullableMode
-            ? JsonSchema.FromType<Rocket_Nullable>()
-            : JsonSchema.FromType<Rocket>();
+            ? Schema_Nullable is null ? JsonSchema.FromType<Rocket_Nullable>() : Schema_Nullable
+            : Schema is null ? JsonSchema.FromType<Rocket>() : Schema;
 
         _data = default;
     }

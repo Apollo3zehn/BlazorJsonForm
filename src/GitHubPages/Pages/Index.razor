@@ -1,3 +1,21 @@
 ﻿@page "/"
+@using NJsonSchema
+@inject HttpClient Http
 
-<TestingComponent />
+@if (_schema is not null && _schema_nullable is not null)
+{
+    <TestingComponent Schema="_schema" Schema_Nullable="_schema_nullable" />   
+}
+
+@code
+{
+    private JsonSchema _schema = default!;
+
+    private JsonSchema _schema_nullable = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _schema = await JsonSchema.FromJsonAsync(await Http.GetStreamAsync("schema.json"));
+        _schema_nullable = await JsonSchema.FromJsonAsync(await Http.GetStreamAsync("schema_nullable.json"));
+    }
+}
