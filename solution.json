@@ -1,9 +1,9 @@
 {
-    "authors": "https://github.com/example",
-    "company": "https://github.com/example",
-    "copyright": "example",
-    "product": "example",
-    "license": "example",
-    "project-url": "https://example.github.io/example",
-    "repository-url": "https://github.com/example/example"
+    "authors": "https://github.com/Apollo3zehn",
+    "company": "https://github.com/Apollo3zehn",
+    "copyright": "Apollo3zehn",
+    "product": "BlazorJsonForm",
+    "license": "MIT",
+    "project-url": "https://apollo3zehn.github.io/BlazorJsonForm",
+    "repository-url": "https://github.com/Apollo3zehn/BlazorJsonForm"
 }

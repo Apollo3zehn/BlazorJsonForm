@@ -2,7 +2,7 @@ namespace BlazorJsonFormTester;
 
 using System.ComponentModel.DataAnnotations;
 
-internal enum RocketStatus: ushort
+public enum RocketStatus: ushort
 {
     Ready,
 
@@ -21,7 +21,7 @@ internal enum RocketStatus: ushort
     "The Uranus",
     "The Neptune"
 )]
-internal enum MissionTargets
+public enum MissionTargets
 {
     Mercury = 1 << 0,
 
@@ -40,7 +40,7 @@ internal enum MissionTargets
 
 /// <param name="Name">Name</param>
 /// <param name="Weight">Weight in kg</param>
-internal record Payload(
+public record Payload(
     string Name,
     double Weight
 );
@@ -60,7 +60,7 @@ internal record Payload(
 /// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
-internal record Rocket(
+public record Rocket(
 
     [property: Range(0, 10)]
     int EngineCount,
@@ -116,7 +116,7 @@ internal record Rocket(
 /// <param name="AdditionalPayloads">Additional payloads @ array of objects</param>
 /// <param name="LaunchCoordinates">Launch coordinates @ array of ints</param>
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
-internal record Rocket_Nullable(
+public record Rocket_Nullable(
 
     [property: Range(0, 10)]
     int? EngineCount,

@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorJsonForm", "src\Blazo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorJsonFormTester", "src\BlazorJsonFormTester\BlazorJsonFormTester.csproj", "{34071033-5FBB-4335-80B6-05271DC16FBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorJsonFormTester.Core", "src\BlazorJsonFormTester.Core\BlazorJsonFormTester.Core.csproj", "{4E7B0BDF-4747-4341-81B6-D18D3D64A843}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitHubPages", "src\GitHubPages\GitHubPages.csproj", "{71F56CDB-A6FB-48E2-AD10-5CC3890704E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,9 +30,19 @@ Global
 		{34071033-5FBB-4335-80B6-05271DC16FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34071033-5FBB-4335-80B6-05271DC16FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34071033-5FBB-4335-80B6-05271DC16FBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E7B0BDF-4747-4341-81B6-D18D3D64A843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E7B0BDF-4747-4341-81B6-D18D3D64A843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E7B0BDF-4747-4341-81B6-D18D3D64A843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E7B0BDF-4747-4341-81B6-D18D3D64A843}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F56CDB-A6FB-48E2-AD10-5CC3890704E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F56CDB-A6FB-48E2-AD10-5CC3890704E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F56CDB-A6FB-48E2-AD10-5CC3890704E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F56CDB-A6FB-48E2-AD10-5CC3890704E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8DDE5BC1-0A8C-4B6B-891B-21981084FA73} = {7D77C24C-0D1F-48C7-A5CD-E342B105CCBA}
 		{34071033-5FBB-4335-80B6-05271DC16FBA} = {7D77C24C-0D1F-48C7-A5CD-E342B105CCBA}
+		{4E7B0BDF-4747-4341-81B6-D18D3D64A843} = {7D77C24C-0D1F-48C7-A5CD-E342B105CCBA}
+		{71F56CDB-A6FB-48E2-AD10-5CC3890704E4} = {7D77C24C-0D1F-48C7-A5CD-E342B105CCBA}
 	EndGlobalSection
 EndGlobal
