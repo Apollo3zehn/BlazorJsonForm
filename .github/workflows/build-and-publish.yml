@@ -13,6 +13,9 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build
