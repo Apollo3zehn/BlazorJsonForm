@@ -139,8 +139,7 @@ public record Rocket_Nullable(
     [
         property:
             HelperText("Example: /path/to/mission/data"),
-            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
-            Required /* https://stackoverflow.com/a/32945086 */
+            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$")
     ]
     
     string? MissionDataPath,
