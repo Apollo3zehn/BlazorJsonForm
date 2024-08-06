@@ -3,7 +3,7 @@ name: Build and Publish
 on:
   push:
     branches:
-      - master
+      - main
       - dev
 
     tags:
@@ -63,13 +63,13 @@ jobs:
       - name: Prepare GitHub Pages
         run: |
           touch app/wwwroot/.nojekyll
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
 
       - name: Deploy GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: app/wwwroot
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
 
     outputs:
       is_release: ${{ env.IS_RELEASE }}
