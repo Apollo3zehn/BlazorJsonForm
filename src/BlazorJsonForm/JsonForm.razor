@@ -697,12 +697,12 @@
             Required="!isNullable"
             MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
             Counter="schema.MaxLength is null ? null : schema.MaxLength"
-            Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern))"
+            Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern, isNullable))"
             Clearable="true"
             OnClearButtonClick="() => setValue?.Invoke(default)"
             HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<string>()"
-            @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
     }
 
     private void RenderEnum<T>(
@@ -763,7 +763,7 @@
                 T="T?"
                 Label="@label"
                 Required="!isNullable"
-                ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
+                ToStringFunc="item => item is null ? string.Empty : valueNamePairs.First(x => x.First.Equals(item)).Second"
                 Clearable="true"
                 OnClearButtonClick="() => setValue?.Invoke(default)"
                 HelperText="@(GetHelperTextOrDefault(schema))"
@@ -870,16 +870,26 @@
             return ["Required"];
     }
 
-    private IEnumerable<string> RegexValidation(string? input, string pattern)
+    private IEnumerable<string> RegexValidation(string? input, string pattern, bool isNullable)
     {
         if (input is null)
-            return ["Required"];
+        {
+            if (isNullable)
+                return Enumerable.Empty<string>();
+
+            else
+                return ["Required"];
+        }
 
         else if (Regex.IsMatch(input, pattern))
+        {
             return Enumerable.Empty<string>();
+        }
 
         else
+        {
             return ["The input does not match the expected pattern"];
+        }
     }
 
     private string? GetHelperTextOrDefault(JsonSchema schema)

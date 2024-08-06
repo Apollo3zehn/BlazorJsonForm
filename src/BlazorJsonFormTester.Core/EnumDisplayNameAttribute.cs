@@ -3,9 +3,9 @@ using NJsonSchema.Annotations;
 namespace BlazorJsonFormTester;
 
 [AttributeUsage(AttributeTargets.Enum)]
-internal class EnumDisplayNameAttribute : Attribute, IJsonSchemaExtensionDataAttribute
+internal class EnumDisplayNamesAttribute : Attribute, IJsonSchemaExtensionDataAttribute
 {
-    public EnumDisplayNameAttribute(params string[] displayNames)
+    public EnumDisplayNamesAttribute(params string[] displayNames)
     {
         ExtensionData = new Dictionary<string, object>()
         {

@@ -8,28 +8,37 @@
 
 @code
 {
-     /* Problem:
+    /* Problem:
      * 
-     * When we have a MudSelect in combination with MultiSelection="true", the
-     * validation function is called before the property SelectedValues is set,
-     * which renders the validation function useles. The task is not to workaround
-     * this issue.
-    */
+     * When we use a MudSelect in combination with MultiSelection="true" and
+     * Required="true" to represent an enum with a [Flags] attribute, it is 
+     * difficult to track if the value is null or empty (0). Normally this
+     * combination would now allow having no selected values (i.e. no flags
+     * set) but in reality this is a valid value. Only null should be invalid
+     * in case Required="true". MudSelect also does not support resetting the
+     * value to null, so this is also being worked around.
+     */
 
-    private bool _isCleared;
+    private bool _hasValue;
 
-    /* https://github.com/MudBlazor/MudBlazor/issues/4328#issuecomment-1086940659 */
+    protected override void OnParametersSet()
+    {
+        var originalSelectedValuesChanged = SelectedValuesChanged;
+
+        SelectedValuesChanged = new EventCallback<IEnumerable<T>>(this, async () =>
+        {
+            if (originalSelectedValuesChanged.HasDelegate)
+                await originalSelectedValuesChanged.InvokeAsync(SelectedValues);
+
+            _hasValue = true;
+            await Validate();
+        });
+    }
+
     protected override bool HasValue(T value)
     {
         if (MultiSelection)
-        {
-            var hasValue = !_isCleared;
-
-            if (_isCleared)
-                _isCleared = false;
-
-            return hasValue;
-        }
+            return _hasValue;
 
         else
             return base.HasValue(value);
@@ -41,11 +50,12 @@
     {
         set
         {
-            Action realCallback = () =>
+            Func<Task> realCallback = () =>
             {
-                _isCleared = true;
-                Validate();
                 value();
+                _hasValue = false;
+                
+                return Validate();
             };
 
             OnClearButtonClick = new EventCallback<MouseEventArgs>(this, realCallback);
