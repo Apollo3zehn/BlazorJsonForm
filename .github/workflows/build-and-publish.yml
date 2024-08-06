@@ -38,6 +38,12 @@ jobs:
         if: ${{ env.IS_RELEASE == 'true' }}
         run: python build/create_tag_body.py
 
+      - name: Set up dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+          dotnet-quality: "preview"
+
       - name: Install
         run: |
           dotnet workload install --temp-dir tmp wasm-tools
