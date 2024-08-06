@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "GitHubPages",
   "resources": {
-    "hash": "sha256-wU63C2QlH5VgK4CX8MRkGhC+huFboEAh5WUl1KOL1ks=",
+    "hash": "sha256-24X1uhtyDELJsqKMHMX0srweSZr0GrtME6xDkMJ65h4=",
     "jsModuleNative": {
       "dotnet.native.9.0.0-preview.6.24327.7.wrc3t77p7z.js": "sha256-UymNP0vy2G/FAMJpHVP81UB/cpE+O62NXC2YWcyEjx0="
     },
@@ -21,9 +21,9 @@
       "System.Runtime.InteropServices.JavaScript.wasm": "sha256-vLsUIPS5QbJ58MiTDxLHORjoUh+0itY+Qhf842c0X8s="
     },
     "assembly": {
-      "BlazorJsonForm.wasm": "sha256-ltOugmc2cV8xteHEsZBr5mFAt2cdjRtPkgI1Mxi9hQ8=",
-      "BlazorJsonFormTester.Core.wasm": "sha256-Zk7bZu4SJCRR1RtESKSEpcUo8vSsQMnllP3wyYQmgQQ=",
-      "GitHubPages.wasm": "sha256-ZHVxK+6mmtyDLXn8+a9+HBjwJ50WnzVWFSXNZZFRbic=",
+      "BlazorJsonForm.wasm": "sha256-Qcz12pU/cQIxQSE0OsVzTqbj8U01uRFy9/HjzZ/pawI=",
+      "BlazorJsonFormTester.Core.wasm": "sha256-WzSZ2LV/rytnWZYh/Sf+XFKzxBqwaxFDpiqQiciegIw=",
+      "GitHubPages.wasm": "sha256-Hgd54uVJfymsxMbr33ApD+NaGKegQ85UriW7ZIsF+kc=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-42oCIgW+ENLT1W/ih0FVYLmw8hO0+tjuRT1HO1KbtUA=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-wCKERPfcGSpn/Tm8xPc5dpRnSTSG5Iajf1W9fWeGM2s=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-JmCuLP3LOon+VQNTkQevwMhbj0ikGA23oj4aJkDmXRg=",
