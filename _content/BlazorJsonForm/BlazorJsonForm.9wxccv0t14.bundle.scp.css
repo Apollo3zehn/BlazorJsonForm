@@ -1,0 +1,13 @@
+/* _content/BlazorJsonForm/JsonForm.razor.rz.scp.css */
+/* Red required asterisk symbol for inputs */
+[b-53c3mu2dbq] .mud-input-control.mud-input-required > .mud-input-control-input-container > .mud-input-label::after {
+    content: " *" !important;
+    color: red;
+}
+
+
+/* Red required asterisk symbol for checkboxes */
+[b-53c3mu2dbq] .mud-input-control.mud-input-required > .mud-input-control-input-container > .mud-checkbox::after {
+    content: "\00a0*";
+    color: red;
+}
