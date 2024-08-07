@@ -7,13 +7,23 @@
 
 <div>
 
-    <div style="display:flex; justify-content: center;">
+    <div style="display:flex; justify-content: center; gap: 2rem;">
         <MudSwitch
             @bind-Value="_nullableMode"
             @bind-Value:after="OnModeChanged"
             Color="Color.Secondary"
             Label="Nullable mode">
         </MudSwitch>
+
+        <MudChip
+            T="string"
+            Href="https://github.com/Apollo3zehn/BlazorJsonForm/blob/dev/src/BlazorJsonFormTester.Core/Types.cs" 
+            Target="_blank"
+            Variant="Variant.Text"
+            Icon="@Icons.Material.Filled.ExitToApp"
+            Color="Color.Secondary">
+            .NET Type Definition
+        </MudChip>
     </div>
 
     <div style="display: flex; gap: 1rem; margin: 1rem;">
