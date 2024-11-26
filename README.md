@@ -132,7 +132,7 @@ Wrap `JsonForm` in a `MudForm` as shown below and validate the form via `_form.V
 
 ### Desialization & Backend Validation
 
-AS shown above, the actual configuration data is stored in the instance variable `_data` which is of type `JsonNode?`.
+As shown above, the actual configuration data is stored in the instance variable `_data` which is of type `JsonNode?`.
 
 When the frontend validation succeeds, you can serialize the data via `var jsonString = JsonSerializer.Serialize(_data)` and send it to the backend.
 
