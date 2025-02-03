@@ -74,6 +74,7 @@ The JSON schema can be easily created in the backend via:
 
 ```cs
 var schema = JsonSchema.FromType<RocketData>();
+var schemaAsJson = schema.ToJson();
 ```
 
 ### Blazor
