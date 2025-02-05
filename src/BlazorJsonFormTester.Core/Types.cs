@@ -51,6 +51,8 @@ public record Payload(
 /// <param name="Storage">Data recording storage size in bytes @ ulong</param>
 /// <param name="AmbientTemperature">Ambient temperature in °C @ float</param>
 /// <param name="Fuel">Amount of fuel in L @ double</param>
+/// <param name="FlightStart">Flight start @ DateTime</param>
+/// <param name="FlightDuration">Flight duration @ TimeSpan</param>
 /// <param name="EnableTelemetry">Enable telemetry @ bool</param>
 /// <param name="Message">Message from mankind @ string (max length)</param>
 /// <param name="MissionDataPath">Mission data path @ string (regex)</param>
@@ -77,12 +79,16 @@ public record Rocket(
 
     bool EnableTelemetry,
 
+    DateTime? FlightStart,
+
+    TimeSpan FlightDuration,
+
     [property: StringLength(20)]
     string Message,
 
     [
-        property: 
-            HelperText("Example: /path/to/mission/data"),
+        property:
+            JsonSchemaExtension("x-helperText", "Example: /path/to/mission/data"),
             RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
             Required /* https://stackoverflow.com/a/32945086 */
     ]
@@ -98,6 +104,10 @@ public record Rocket(
 
     int[] LaunchCoordinates,
 
+    [property: JsonSchemaExtension(
+        "x-keyLabel", "Vogon", 
+        "x-valueLabel", "English"
+    )]
     Dictionary<string, string> BabelFishDictionary
 );
 
@@ -108,6 +118,8 @@ public record Rocket(
 /// <param name="AmbientTemperature">Ambient temperature in °C @ float</param>
 /// <param name="Fuel">Amount of fuel in L @ double</param>
 /// <param name="EnableTelemetry">Enable telemetry @ bool</param>
+/// <param name="FlightStart">Flight start @ DateTime</param>
+/// <param name="FlightDuration">Flight duration @ TimeSpan</param>
 /// <param name="Message">Message from mankind @ string</param>
 /// <param name="MissionDataPath">Mission data path @ string (regex)</param>
 /// <param name="Status">Rocket status @ enum of ushort</param>
@@ -133,16 +145,20 @@ public record Rocket_Nullable(
 
     bool? EnableTelemetry,
 
+    DateTime? FlightStart,
+
+    TimeSpan? FlightDuration,
+
     [property: StringLength(20)]
     string? Message,
 
     [
         property:
-            HelperText("Example: /path/to/mission/data"),
+            JsonSchemaExtension("x-helperText", "Example: /path/to/mission/data"),
             RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"),
             Required /* https://stackoverflow.com/a/32945086 */
     ]
-    
+
     string? MissionDataPath,
 
     RocketStatus? Status,
@@ -155,5 +171,9 @@ public record Rocket_Nullable(
 
     int[]? LaunchCoordinates,
 
+    [property: JsonSchemaExtension(
+        "x-keyLabel", "Vogon", 
+        "x-valueLabel", "English"
+    )]
     Dictionary<string, string>? BabelFishDictionary
 );

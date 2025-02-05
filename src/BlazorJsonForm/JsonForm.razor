@@ -52,7 +52,7 @@
                 : Data.DeepClone();
 
             Data = Render(
-                "Rocket settings", 
+                string.Empty, 
                 Schema,
                 Data,
                 setValue: default,
@@ -168,6 +168,7 @@
                 RenderBoolean(
                     label,
                     isNullable,
+                    schema,
                     (JsonValue?)data,
                     setValue,
                     builder
@@ -200,6 +201,7 @@
                     data = RenderDictionary(
                         label, 
                         isNullable,
+                        schema,
                         schema.AdditionalPropertiesSchema,
                         (JsonObject?)data,
                         setValue,
@@ -213,6 +215,7 @@
                     data = RenderObject(
                         label, 
                         isNullable,
+                        schema,
                         schema.ActualProperties,
                         (JsonObject?)data,
                         setValue,
@@ -225,7 +228,20 @@
 
             case JsonObjectType.None:
 
-                if (schema.OneOf.Count == 1)
+                if (schema.Reference is not null)
+                {
+                    data = Render(
+                        label,
+                        schema.Reference,
+                        data,
+                        setValue,
+                        builder,
+                        isNullable: false,
+                        isTopLevel
+                    );
+                }
+
+                else if (schema.OneOf.Count == 1)
                 {
                     data = Render(
                         label,
@@ -253,7 +269,7 @@
 
                 else
                 {
-                    throw new Exception("schema.OneOf.Count must be equal to 1 or 2.");
+                    throw new Exception("schema.OneOf.Count must be equal to 1 or 2. but it is " + schema.OneOf.Count);
                 }
 
                 break;
@@ -283,6 +299,7 @@
     private JsonObject? RenderObject(
         string? title,
         bool isNullable,
+        JsonSchema schema,
         IReadOnlyDictionary<string, JsonSchemaProperty> properties, 
         JsonObject? data,
         Action<JsonNode?>? setValue,
@@ -294,38 +311,41 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
+        @if (!isTopLevel)
+        {
+            <div style="display: flex; margin-top: 1rem">
 
-        <div style="display: flex; margin-top: 1rem; @marginLeft">
+                <JsonFormTooltip Description="@schema.Description">
+                    <MudText
+                    Style="flex: 1"
+                    Typo="Typo.caption">
+                        @title
+                    </MudText>
+                </JsonFormTooltip>
 
-            <MudText
-                Style="flex: 1;"
-                Typo="Typo.subtitle2">
-                @title
-            </MudText>
-
-            @if (data is not null && isNullable)
-            {
-                <MudTooltip Text="Set to null">
-                    <MudIconButton
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
                         OnClick="() => setValue?.Invoke(default)"
                         Size="Size.Small"
                         Icon="@Icons.Material.Filled.Clear" />
-                </MudTooltip>
-            }
+                    </MudTooltip>
+                }
 
-        </div>
+            </div>
+        }
 
-        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-bottom: 1rem;";
+        var margin = isTopLevel ? "" : "margin-left: 0.5rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             @if (data is null)
             {
                 <MudButton 
-                    OnClick="() => setValue?.Invoke(new JsonObject())"
-                    Variant="Variant.Outlined"
-                    Color="Color.Primary">
+                OnClick="() => setValue?.Invoke(new JsonObject())"
+                Variant="Variant.Outlined"
+                Color="Color.Primary">
                     Create
                 </MudButton>
             }
@@ -335,17 +355,18 @@
                 foreach (var entry in properties)
                 {
                     var (name, propertySchema) = entry;
-                    var label = propertySchema.Description ?? name;
+                    var camelCaseName = Char.ToLower(name[0]) + name.Substring(1);
+                    var label = name;
 
-                    data.TryGetPropertyValue(name, out var propertyData);
+                    data.TryGetPropertyValue(camelCaseName, out var propertyData);
 
-                    data[name] = Render(
+                    data[camelCaseName] = Render(
                         label, 
                         propertySchema,
                         propertyData,
                         setValue: value =>
                         {
-                            data[name] = value;
+                            data[camelCaseName] = value;
 
                             if (DataChanged.HasDelegate)
                                 DataChanged.InvokeAsync(Data);
@@ -365,6 +386,7 @@
     private JsonObject? RenderDictionary(
         string? title,
         bool isNullable,
+        JsonSchema schema,
         JsonSchema valueSchema,
         JsonObject? data,
         Action<JsonNode?>? setValue,
@@ -376,55 +398,87 @@
         if (data is null && !isNullable)
             data = new JsonObject();
 
-        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
 
-        <div style="display: flex; margin-top: 1rem; @marginLeft">
+        @if (!isTopLevel)
+        {
+            <div style="display: flex; margin-top: 1rem;">
 
-            <MudText
-                Style="flex: 1"
-                Typo="Typo.subtitle2">
-                @title
-            </MudText>
+                <JsonFormTooltip Description="@schema.Description">
+                    <MudText
+                    Style="flex: 1"
+                    Typo="Typo.caption">
+                        @title
+                    </MudText>
+                </JsonFormTooltip>
 
-            @if (data is not null && isNullable)
-            {
-                <MudTooltip Text="Set to null">
-                    <MudIconButton
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
                         OnClick="() => setValue?.Invoke(default)"
                         Size="Size.Small"
                         Icon="@Icons.Material.Filled.Clear" />
-                </MudTooltip>
-            }
+                    </MudTooltip>
+                }
 
-        </div>
+            </div>
+        }
 
-        var margin = isTopLevel ? "" : "margin-left: 1rem; margin-bottom: 1rem;";
+        var margin = isTopLevel ? "" : "margin-left: 0.5rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             @if (data is null)
             {
                 <MudButton 
-                    OnClick="() => setValue?.Invoke(new JsonObject())"
-                    Variant="Variant.Outlined"
-                    Color="Color.Primary">
+                OnClick="() => setValue?.Invoke(new JsonObject())"
+                Variant="Variant.Outlined"
+                Color="Color.Primary">
                     Create
                 </MudButton>
             }
 
             else
             {
+                var (keyLabel, valueLabel) = GetKeyValueLabelOrDefault(schema);
+
                 foreach (var (key, value) in data)
                 {
                     <div style="display: flex;">
 
+                        <div>
+
+                            <MudTooltip Text="Delete entry">
+                                <MudIconButton
+                                OnClick="@(async () => 
+                                    {
+                                        var result = await DialogService.ShowMessageBox(
+                                            "Confirmation required",
+                                            "Are you sure to delete the selected element?", 
+                                            yesText: "Yes", cancelText: "Cancel"
+                                        );
+
+                                        if (result.HasValue && result.Value)
+                                        {
+                                            data.Remove(key);
+
+                                            if (DataChanged.HasDelegate)
+                                                await DataChanged.InvokeAsync(Data);
+                                        }
+                                    })"
+                                Size="Size.Small"
+                                Icon="@Icons.Material.Filled.Delete" />
+                            </MudTooltip>
+
+                        </div>
+
                         <div style="display: flex; flex-direction: column; flex: 1">
 
                             <MudTextField
-                                Label="Key"
-                                Variant="Variant.Text"
-                                @bind-Value:get="key"
-                                @bind-Value:set="newKey => 
+                            Label="@keyLabel"
+                            Variant="Variant.Text"
+                            @bind-Value:get="key"
+                            @bind-Value:set="newKey => 
                                 {
                                     var value = data[key];
 
@@ -437,7 +491,7 @@
 
                             @{
                                 data[key] = Render(
-                                    label: "Value",
+                                    label: valueLabel,
                                     valueSchema,
                                     value,
                                     setValue: value =>
@@ -455,42 +509,16 @@
 
                         </div>
 
-                        <div>
-
-                            <MudTooltip Text="Delete entry">
-                                <MudIconButton
-                                    OnClick="@(async () => 
-                                    {
-                                        var result = await DialogService.ShowMessageBox(
-                                            "Confirmation required",
-                                            "Are you sure to delete the selected element?", 
-                                            yesText: "Yes", cancelText: "Cancel"
-                                        );
-
-                                        if (result.HasValue && result.Value)
-                                        {
-                                            data.Remove(key);
-
-                                            if (DataChanged.HasDelegate)
-                                                await DataChanged.InvokeAsync(Data);
-                                        }
-                                    })"
-                                    Size="Size.Small"
-                                    Icon="@Icons.Material.Filled.Delete" />
-                            </MudTooltip>
-
-                        </div>
-
                     </div>
                 }
 
                 @if (!data.ContainsKey(string.Empty))
                 {
-                    <div style="margin-left: auto; margin-right: auto;">
+                    <div style="margin-right: auto;">
                         <MudIconButton 
-                            Icon="@Icons.Material.Filled.Add"
-                            Color="Color.Primary"
-                            OnClick="() => 
+                        Icon="@Icons.Material.Filled.Add"
+                        Color="Color.Primary"
+                        OnClick="() => 
                             {
                                 data.Add(string.Empty, default);
 
@@ -524,38 +552,41 @@
         if (data is null && !isNullable)
             data = new JsonArray();
 
-        var marginLeft = isTopLevel ? "" : "margin-left: 1rem;";
+        @if (!isTopLevel)
+        {
+            <div style="display: flex; margin-top: 1rem;">
 
-        <div style="display: flex; margin-top: 1rem; @marginLeft">
+                <JsonFormTooltip Description="@schema.Description">
+                    <MudText
+                    Style="flex: 1"
+                    Typo="Typo.caption">
+                        @title
+                    </MudText>
+                </JsonFormTooltip>
 
-            <MudText
-                Style="flex: 1"
-                Typo="Typo.subtitle2">
-                @title
-            </MudText>
-
-            @if (data is not null && isNullable)
-            {
-                <MudTooltip Text="Set to null">
-                    <MudIconButton
+                @if (data is not null && isNullable)
+                {
+                    <MudTooltip Text="Set to null">
+                        <MudIconButton
                         OnClick="() => setValue?.Invoke(default)"
                         Size="Size.Small"
                         Icon="@Icons.Material.Filled.Clear" />
-                </MudTooltip>
-            }
+                    </MudTooltip>
+                }
 
-        </div>
+            </div>
+        }
 
-        var margin = isTopLevel ? "" : " margin-left: 1rem; margin-bottom: 1rem;";
+        var margin = isTopLevel ? "" : " margin-left: 0.5rem; margin-bottom: 1rem;";
 
         <div style="display: flex; flex-direction: column; gap: @Gap; @margin">
 
             @if (data is null)
             {
                 <MudButton 
-                    OnClick="() => setValue?.Invoke(new JsonArray())"
-                    Variant="Variant.Outlined"
-                    Color="Color.Primary">
+                OnClick="() => setValue?.Invoke(new JsonArray())"
+                Variant="Variant.Outlined"
+                Color="Color.Primary">
                     Create
                 </MudButton>
             }
@@ -567,6 +598,41 @@
                     var i_captured = i;
 
                     <div style="display: flex;">
+                        <div>
+                            <MudMenu 
+                            Size="Size.Small"
+                            Icon="@Icons.Material.Filled.MoreVert"
+                            Dense="true">
+
+                                @if (i_captured != 0)
+                                {
+                                    <MudMenuItem
+                                    OnClick="() => MoveUp(data, i_captured)"
+                                    Icon="@Icons.Material.Filled.ArrowUpward"
+                                    IconSize="Size.Small">
+                                        Move up
+                                    </MudMenuItem>
+                                }
+
+                                @if (i_captured != data.Count - 1)
+                                {
+                                    <MudMenuItem
+                                    OnClick="() => MoveDown(data, i_captured)"
+                                    Icon="@Icons.Material.Filled.ArrowDownward"
+                                    IconSize="Size.Small">
+                                        Move down
+                                    </MudMenuItem>
+                                }
+
+                                <MudMenuItem
+                                OnClick="() => Delete(data, i_captured)"
+                                Icon="@Icons.Material.Filled.Delete"
+                                IconSize="Size.Small">
+                                    Delete
+                                </MudMenuItem>
+                            </MudMenu>
+                        </div>
+
                         <div style="flex: 1;">
                             @{
                                 var newData = Render(
@@ -589,43 +655,14 @@
                                     data[i_captured] = newData;
                             }
                         </div>
-
-                        <div>
-                            <MudMenu Size="Size.Small" Icon="@Icons.Material.Filled.MoreVert">
-
-                                @if (i_captured != 0)
-                                {
-                                    <MudMenuItem
-                                        OnClick="() => MoveUp(data, i_captured)"
-                                        Icon="@Icons.Material.Filled.ArrowUpward">
-                                        Move up
-                                    </MudMenuItem>
-                                }
-
-                                @if (i_captured != data.Count - 1)
-                                {
-                                    <MudMenuItem
-                                        OnClick="() => MoveDown(data, i_captured)"
-                                        Icon="@Icons.Material.Filled.ArrowDownward">
-                                        Move down
-                                    </MudMenuItem>
-                                }
-                                
-                                <MudMenuItem
-                                    OnClick="() => Delete(data, i_captured)"
-                                    Icon="@Icons.Material.Filled.Delete">
-                                    Delete
-                                </MudMenuItem>
-                            </MudMenu>
-                        </div>
                     </div>
                 }
 
-                <div style="margin-left: auto; margin-right: auto;">
+                <div style="margin-right: auto;">
                     <MudIconButton 
-                        Icon="@Icons.Material.Filled.Add"
-                        Color="Color.Primary"
-                        OnClick="() => 
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Primary"
+                    OnClick="() => 
                         {
                             data.Add(default);
 
@@ -651,7 +688,8 @@
     {
         var __builder = builder;
 
-        <MudNumericField
+        <JsonFormTooltip Description="@schema.Description">
+            <MudNumericField
             Label="@label"
             Required="!isNullable"
             Min="schema.Minimum.HasValue ? T.CreateChecked(schema.Minimum.Value) : T.MinValue"
@@ -659,11 +697,13 @@
             HelperText="@(GetHelperTextOrDefault(schema))"
             @bind-Value:get="data is null ? null : data.GetValue<T?>()"
             @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+        </JsonFormTooltip>
     }
 
     private void RenderBoolean(
         string label,
         bool isNullable,
+        JsonSchema schema,
         JsonValue? data,
         Action<JsonNode?>? setValue,
         RenderTreeBuilder builder
@@ -671,7 +711,8 @@
     {
         var __builder = builder;
 
-        <MudCheckBox
+        <JsonFormTooltip Description="@schema.Description">
+            <MudCheckBox
             Class="@(isNullable ? null : "mud-input-required")"
             Label="@label"
             Color="@Color.Primary"
@@ -679,6 +720,7 @@
             Validation="isNullable ? null : (Func<bool?, IEnumerable<string>>)(BooleanValidation)"
             @bind-Value:get="data is null ? default(bool?) : data.GetValue<bool>()"
             @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+        </JsonFormTooltip>
     }
 
     private void RenderString(
@@ -692,17 +734,66 @@
     {
         var __builder = builder;
 
-        <MudTextField
-            Label="@label"
-            Required="!isNullable"
-            MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
-            Counter="schema.MaxLength is null ? null : schema.MaxLength"
-            Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern, isNullable))"
-            Clearable="true"
-            OnClearButtonClick="() => setValue?.Invoke(default)"
-            HelperText="@(GetHelperTextOrDefault(schema))"
-            @bind-Value:get="data is null ? null : data.GetValue<string>()"
-        @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+        @if (schema.Format == "duration")
+        {
+            <JsonFormTooltip Description="@schema.Description">
+                <MudTimePicker
+                    Label="@label"
+                    Required="!isNullable"
+                    HelperText="@GetHelperTextOrDefault(schema)"
+                    Editable="true"
+                    @bind-Time:get="(TimeSpan?)(data is null ? null : TimeSpan.Parse(data.GetValue<string>()))"
+                    @bind-Time:set="@(value => 
+                        { 
+                            var formattedValue = TimeSpan.TryParse(value.ToString(), out var parsed) 
+                                ? parsed.ToString() 
+                                : default;
+
+                            setValue?.Invoke(JsonValue.Create(formattedValue)); 
+                        }
+                    )" />
+            </JsonFormTooltip>
+        }
+
+        else if (schema.Format == "date-time")
+        {
+            <!-- https://github.com/MudBlazor/MudBlazor/issues/1082 -->
+
+            <JsonFormTooltip Description="@schema.Description">
+
+                <MudTextField
+                    Label="@label"
+                    Required="!isNullable"
+                    MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
+                    Counter="schema.MaxLength is null ? null : schema.MaxLength"
+                    Validation="@((Func<string, IEnumerable<string>>)(value => RegexValidation(value, @"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{7}\+\d{2}:\d{2}", isNullable)))"
+                    Clearable="true"
+                    OnClearButtonClick="() => setValue?.Invoke(default)"
+                    HelperText="@("Format: 2020-01-01T00:00:00.0000000+00:00 (MudBlazor/issues/1082)" + ", " + GetHelperTextOrDefault(schema))" 
+                    @bind-Value:get="data is null ? null : data.GetValue<string>()"
+                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+
+            </JsonFormTooltip>
+        }
+
+        else
+        {
+            <JsonFormTooltip Description="@schema.Description">
+
+                <MudTextField
+                    Label="@label"
+                    Required="!isNullable"
+                    MaxLength="schema.MaxLength is null ? int.MaxValue : (int)schema.MaxLength"
+                    Counter="schema.MaxLength is null ? null : schema.MaxLength"
+                    Validation="schema.Pattern is null ? null : (Func<string, IEnumerable<string>>)(value => RegexValidation(value, schema.Pattern, isNullable))"
+                    Clearable="true"
+                    OnClearButtonClick="() => setValue?.Invoke(default)"
+                    HelperText="@(GetHelperTextOrDefault(schema))"
+                    @bind-Value:get="data is null ? null : data.GetValue<string>()"
+                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))" />
+
+            </JsonFormTooltip>
+        }
     }
 
     private void RenderEnum<T>(
@@ -735,48 +826,52 @@
             .Zip(enumerationNames)
             .ToList();
 
-        if (schema.IsFlagEnumerable)
-        {
-            <MudSelectEnhanced
-                T="T?"
-                Label="@label"
-                Required="!isNullable"
-                MultiSelection="true"
-                ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
-                Clearable="true"
-                EnhancedOnClearButtonClick="() => setValue?.Invoke(default)"
-                HelperText="@(GetHelperTextOrDefault(schema))"
-                @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
-                @bind-SelectedValues:set="value => setValue?.Invoke(data = JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
+        <JsonFormTooltip Description="@schema.Description">
 
-                @foreach (var valueNamePair in valueNamePairs)
-                {
-                    <MudSelectItem Value="(T?)valueNamePair.First" />
-                }
+            @if (schema.IsFlagEnumerable)
+            {
+                <MudSelectEnhanced
+                    T="T?"
+                    Label="@label"
+                    Required="!isNullable"
+                    MultiSelection="true"
+                    ToStringFunc="item => valueNamePairs.First(x => x.First.Equals(item)).Second"
+                    Clearable="true"
+                    EnhancedOnClearButtonClick="() => setValue?.Invoke(default)"
+                    HelperText="@(GetHelperTextOrDefault(schema))"
+                    @bind-SelectedValues:get="data is null ? Enumerable.Empty<T?>() : FromFlags((T)data.GetValue<T?>()!).Select(x => (T?)x)"
+                    @bind-SelectedValues:set="value => setValue?.Invoke(data = JsonValue.Create(ToFlags(value.Select(x => (T)x!))))">
 
-            </MudSelectEnhanced>
-        }
+                    @foreach (var valueNamePair in valueNamePairs)
+                    {
+                        <MudSelectItem Value="(T?)valueNamePair.First" />
+                    }
 
-        else
-        {
-            <MudSelect
-                T="T?"
-                Label="@label"
-                Required="!isNullable"
-                ToStringFunc="item => item is null ? string.Empty : valueNamePairs.First(x => x.First.Equals(item)).Second"
-                Clearable="true"
-                OnClearButtonClick="() => setValue?.Invoke(default)"
-                HelperText="@(GetHelperTextOrDefault(schema))"
-                @bind-Value:get="data is null ? null : data.GetValue<T?>()"
-                @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))">
+                </MudSelectEnhanced>
+            }
 
-                @foreach (var valueNamePair in valueNamePairs)
-                {
-                    <MudSelectItem Value="(T?)valueNamePair.First" />
-                }
+            else
+            {
+                <MudSelect
+                    T="T?"
+                    Label="@label"
+                    Required="!isNullable"
+                    ToStringFunc="item => item is null ? string.Empty : valueNamePairs.First(x => x.First.Equals(item)).Second"
+                    Clearable="true"
+                    OnClearButtonClick="() => setValue?.Invoke(default)"
+                    HelperText="@(GetHelperTextOrDefault(schema))"
+                    @bind-Value:get="data is null ? null : data.GetValue<T?>()"
+                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value))">
 
-            </MudSelect>
-        }
+                    @foreach (var valueNamePair in valueNamePairs)
+                    {
+                        <MudSelectItem Value="(T?)valueNamePair.First" />
+                    }
+
+                </MudSelect>
+            }
+
+        </JsonFormTooltip>
     }
 
     private IEnumerable<T> FromFlags<T>(T value) where T : INumber<T>, IBitwiseOperators<T, T, T>
@@ -899,6 +994,26 @@
             schema.ExtensionData.TryGetValue("x-helperText", out var value) &&
             value is string stringValue
                 ? stringValue
-                : null;
+                : default;
+    }
+
+    private (string, string) GetKeyValueLabelOrDefault(JsonSchema schema)
+    {
+        if (schema.ExtensionData is null)
+            return ("Key", "Value");
+
+        var keyLabel =
+            schema.ExtensionData.TryGetValue("x-keyLabel", out var value1) &&
+            value1 is string stringValue1
+                ? stringValue1
+                : "Key";
+
+        var valueLabel =
+            schema.ExtensionData.TryGetValue("x-valueLabel", out var value2) &&
+            value2 is string stringValue2
+                ? stringValue2
+                : "Value";
+
+        return (keyLabel, valueLabel);
     }
 }

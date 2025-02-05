@@ -42,6 +42,7 @@ The following data types are supported:
 - Integer: `byte`, `int`, `ulong`, `long`
 - Floating point: `float`, `double`
 - Enum, underlying type: `byte`, `sbyte`, `ushort`, `short`, `uint`, `int`, `ulong`, `long`
+- `DateTime`, `TimeSpan`
 - `bool`
 - `string`
 - Object: `class` or `struct` (including `record`)
@@ -74,6 +75,7 @@ The JSON schema can be easily created in the backend via:
 
 ```cs
 var schema = JsonSchema.FromType<RocketData>();
+var schemaAsJson = schema.ToJson();
 ```
 
 ### Blazor
@@ -132,7 +134,7 @@ Wrap `JsonForm` in a `MudForm` as shown below and validate the form via `_form.V
 
 ### Desialization & Backend Validation
 
-AS shown above, the actual configuration data is stored in the instance variable `_data` which is of type `JsonNode?`.
+As shown above, the actual configuration data is stored in the instance variable `_data` which is of type `JsonNode?`.
 
 When the frontend validation succeeds, you can serialize the data via `var jsonString = JsonSerializer.Serialize(_data)` and send it to the backend.
 
@@ -176,31 +178,41 @@ string FooBar { get; set; }
 
 ## Extras
 
-You can define custom attrbutes which will change the generated JSON schema as described below.
+You can define a custom attrbute which will change the generated JSON schema as described below.
+
+The attribute definition may look like this:
+
+```cs
+[AttributeUsage(AttributeTargets.Property)]
+internal class JsonSchemaExtensionAttribute(params string[] extensionData) : Attribute, IJsonSchemaExtensionDataAttribute
+{
+    public IReadOnlyDictionary<string, object> ExtensionData { get; } = extensionData
+        .Select((value, index) => new { PairNum = index / 2, value })
+        .GroupBy(pair => pair.PairNum)
+        .Select(grp => grp.Select(g => g.value).ToArray())
+        .ToDictionary(x => x[0], x => (object)x[1]);
+}
+```
+
+### Dictionary: Rename key and value
+
+```cs
+record MyConfigurationType(
+    [property: JsonSchemaExtension(
+        "x-keyLabel", "Vogon", 
+        "x-valueLabel", "English"
+    )]
+    Dictionary<string, string> BabelFishDictionary,
+);
+```
 
 ### Helper text
 
 Add a [helper text](https://mudblazor.com/components/textfield#form-props-helper-text) to inputs:
 
 ```cs
-using NJsonSchema.Annotations;
-
-[AttributeUsage(AttributeTargets.Property)]
-class HelperTextAttribute : Attribute, IJsonSchemaExtensionDataAttribute
-{
-    public HelperTextAttribute(string text)
-    {
-        ExtensionData = new Dictionary<string, object>()
-        {
-            ["x-helperText"] = text
-        };
-    }
-
-    public IReadOnlyDictionary<string, object> ExtensionData  { get; }
-}
-
-internal record MyConfigurationType(
-    [property: HelperText("Example: /path/to/mission/data")],
+record MyConfigurationType(
+    [property: JsonSchemaExtension("x-helperText", "Example: /path/to/mission/data")]
     string MissionDataPath,
 );
 ```

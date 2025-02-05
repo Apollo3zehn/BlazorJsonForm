@@ -1,0 +1,17 @@
+<!-- https://github.com/MudBlazor/MudBlazor/pull/10720 -->
+<MudTooltip
+    RootStyle="width: 100%;"
+    Text="@Description"
+    Placement="Placement.Right"
+    Disabled="string.IsNullOrWhiteSpace(Description)">
+
+    @ChildContent
+</MudTooltip>
+
+@code {
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
