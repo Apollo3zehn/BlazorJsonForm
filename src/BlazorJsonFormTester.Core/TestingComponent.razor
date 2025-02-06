@@ -9,19 +9,19 @@
 
     <div style="display:flex; justify-content: center; gap: 2rem;">
         <MudSwitch
-            @bind-Value="_nullableMode"
-            @bind-Value:after="OnModeChanged"
-            Color="Color.Secondary"
-            Label="Nullable mode">
+        @bind-Value="_nullableMode"
+        @bind-Value:after="OnModeChanged"
+        Color="Color.Secondary"
+        Label="Nullable mode">
         </MudSwitch>
 
         <MudChip
-            T="string"
-            Href="https://github.com/Apollo3zehn/BlazorJsonForm/blob/dev/src/BlazorJsonFormTester.Core/Types.cs" 
-            Target="_blank"
-            Variant="Variant.Text"
-            Icon="@Icons.Material.Filled.ExitToApp"
-            Color="Color.Secondary">
+        T="string"
+        Href="https://github.com/Apollo3zehn/BlazorJsonForm/blob/dev/src/BlazorJsonFormTester.Core/Types.cs" 
+        Target="_blank"
+        Variant="Variant.Text"
+        Icon="@Icons.Material.Filled.ExitToApp"
+        Color="Color.Secondary">
             .NET Type Definition
         </MudChip>
     </div>
@@ -32,13 +32,13 @@
 
             <span>
                 @(
-                    (MarkupString)(
-                        _schema
-                            .ToJson()
-                            .Replace(" ", "&nbsp;")
-                            .Replace("\n", "<br />")
-                    )
-                )
+                            (MarkupString)(
+                                _schema
+                                    .ToJson()
+                                    .Replace(" ", "&nbsp;")
+                                    .Replace("\n", "<br />")
+                            )
+                        )
             </span>
         </div>
 
@@ -47,8 +47,8 @@
 
             <MudForm @ref="_form">
                 <JsonForm
-                    Schema="_schema"
-                    @bind-Data="_data" />
+                Schema="_schema"
+                @bind-Data="_data" />
             </MudForm>
         </div>
 
@@ -57,41 +57,41 @@
 
             <span>
                 @(
-                    (MarkupString)(
-                        JsonSerializer.Serialize(_data, new JsonSerializerOptions { WriteIndented = true })
-                            .Replace(" ", "&nbsp;")
-                            .Replace("\n", "<br />")
-                    )
-                )
+                            (MarkupString)(
+                                JsonSerializer.Serialize(_data, new JsonSerializerOptions { WriteIndented = true })
+                                    .Replace(" ", "&nbsp;")
+                                    .Replace("\n", "<br />")
+                            )
+                        )
             </span>
 
             <div style="margin-top: 2rem">
                 <MudButton 
-                    Style="width: 12rem;"
-                    OnClick="ValidateForm"
-                    Variant="Variant.Outlined"
-                    Color="Color.Primary">
+                Style="width: 12rem;"
+                OnClick="ValidateForm"
+                Variant="Variant.Outlined"
+                Color="Color.Primary">
                     Validate Form
                 </MudButton>
             </div>
 
             <div style="margin-top: 2rem">
                 <MudButton 
-                    Style="width: 12rem;"
-                    OnClick="() =>
+                Style="width: 12rem;"
+                OnClick="() =>
                     {
                         if (_nullableMode)
                             ValidateObject<Rocket_Nullable>();
-                        
+
                         else
                             ValidateObject<Rocket>();
                     }"
-                    Variant="Variant.Outlined"
-                    Color="Color.Secondary">
+                Variant="Variant.Outlined"
+                Color="Color.Secondary">
                     Validate Object
                 </MudButton>
             </div>
-            
+
         </div>
     </div>
 
@@ -144,7 +144,7 @@
         else
         {
             Snackbar.Add(
-                $"There were validation errors.",
+                "There were validation errors",
                 Severity.Error
             );
         }
@@ -196,7 +196,7 @@
         catch (JsonException ex)
         {
             Snackbar.Add(
-                $"There were deserilization errors: {ex.Message}",
+                $"There were deserialization errors: {ex.Message}",
                 Severity.Error
             );
         }
