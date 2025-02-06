@@ -267,9 +267,14 @@
                     );
                 }
 
+                else if (schema.OneOf.Count == 0)
+                {
+                    RenderPlaceholder(builder);
+                }
+
                 else
                 {
-                    throw new Exception("schema.OneOf.Count must be equal to 1 or 2. but it is " + schema.OneOf.Count);
+                    throw new Exception("schema.OneOf.Count must be equal to 1 or 2 but it is " + schema.OneOf.Count);
                 }
 
                 break;
@@ -873,6 +878,19 @@
             }
 
         </JsonFormTooltip>
+    }
+
+    private void RenderPlaceholder(
+        RenderTreeBuilder builder
+    )
+    {
+        var __builder = builder;
+
+        <MudAlert 
+            Severity="Severity.Info"
+            Variant="Variant.Text">
+            The schema is empty
+        </MudAlert>
     }
 
     private IEnumerable<T> FromFlags<T>(T value) where T : INumber<T>, IBitwiseOperators<T, T, T>

@@ -1,3 +1,7 @@
+## v1.0.0-beta.3 - 2024-02-06
+
+Switch to MudBlazor 8.2.0
+
 ## v1.0.0-beta.2 - 2024-02-05
 
 Added `TimeSpan` and (rudimentary) `DateTime` support and improved the layout.
