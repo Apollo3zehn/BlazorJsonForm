@@ -742,6 +742,7 @@
                     Required="!isNullable"
                     HelperText="@GetHelperTextOrDefault(schema)"
                     Editable="true"
+                    IconSize="Size.Small"
                     @bind-Time:get="(TimeSpan?)(data is null ? null : TimeSpan.Parse(data.GetValue<string>()))"
                     @bind-Time:set="@(value => 
                         { 
