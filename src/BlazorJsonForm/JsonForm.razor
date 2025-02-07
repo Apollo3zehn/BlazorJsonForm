@@ -742,22 +742,13 @@
         @if (schema.Format == "duration")
         {
             <JsonFormTooltip Description="@schema.Description">
-                <MudTimePicker
+                <MudTextField
+                    T="TimeSpan?"
                     Label="@label"
                     Required="!isNullable"
                     HelperText="@GetHelperTextOrDefault(schema)"
-                    Editable="true"
-                    IconSize="Size.Small"
-                    @bind-Time:get="(TimeSpan?)(data is null ? null : TimeSpan.Parse(data.GetValue<string>()))"
-                    @bind-Time:set="@(value => 
-                        { 
-                            var formattedValue = TimeSpan.TryParse(value.ToString(), out var parsed) 
-                                ? parsed.ToString() 
-                                : default;
-
-                            setValue?.Invoke(JsonValue.Create(formattedValue)); 
-                        }
-                    )" />
+                    @bind-Value:get="(TimeSpan?)(data is null ? null : TimeSpan.Parse(data.GetValue<string>()))"
+                    @bind-Value:set="value => setValue?.Invoke(JsonValue.Create(value.ToString()))" />
             </JsonFormTooltip>
         }
 

@@ -1,3 +1,7 @@
+## v1.0.0-beta.4 - 2024-02-07
+
+Do not use TimePicker for TimeSpan because it is too limited
+
 ## v1.0.0-beta.3 - 2024-02-06
 
 Switch to MudBlazor 8.2.0
