@@ -1,3 +1,7 @@
+## v1.0.0-beta.5 - 2026-01-12
+
+Added support for localization, thanks @Marck21 for your contribution!
+
 ## v1.0.0-beta.4 - 2024-02-07
 
 Do not use TimePicker for TimeSpan because it is too limited

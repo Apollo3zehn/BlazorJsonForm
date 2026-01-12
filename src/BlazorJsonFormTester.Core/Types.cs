@@ -1,8 +1,9 @@
 namespace BlazorJsonFormTester;
 
+using BlazorJsonFormTester.Core.Localization;
 using System.ComponentModel.DataAnnotations;
 
-public enum RocketStatus: ushort
+public enum RocketStatus :ushort
 {
     Ready,
 
@@ -41,7 +42,9 @@ public enum MissionTargets
 /// <param name="Name">Name</param>
 /// <param name="Weight">Weight in kg</param>
 public record Payload(
+    [property: JsonSchemaExtension("x-label", "Name_label")]
     string Name,
+    [property: JsonSchemaExtension("x-label", "Weight_label")]
     double Weight
 );
 
@@ -64,48 +67,67 @@ public record Payload(
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
 public record Rocket(
 
-    [property: Range(0, 10)]
+    [property: Range(0, 10),
+               JsonSchemaExtension("x-label", "EngineCount_label")]
     int EngineCount,
 
+    [property: JsonSchemaExtension("x-label", "HeadlightBrightness_label")]
     byte HeadlightBrightness,
 
+    [property: JsonSchemaExtension("x-label", "ImprobabilityDriveFlux_label")]
     long ImprobabilityDriveFlux,
 
+    [property: JsonSchemaExtension("x-label", "Storage_label")]
     ulong Storage,
 
+    [property: JsonSchemaExtension("x-label", "AmbientTemperature_label")]
     float AmbientTemperature,
 
+    [property: JsonSchemaExtension("x-label", "Fuel_label")]
     double Fuel,
 
+    [property: JsonSchemaExtension("x-label", "EnableTelemetry_label")]
     bool EnableTelemetry,
 
+    [property: JsonSchemaExtension("x-label", "FlightStart_label")]
     DateTime? FlightStart,
 
+    [property: JsonSchemaExtension("x-label", "FlightDuration_label")]
     TimeSpan FlightDuration,
 
-    [property: StringLength(20)]
+    [property: StringLength(20),
+               JsonSchemaExtension("x-label", "Message_label")]
     string Message,
 
     [
         property:
-            JsonSchemaExtension("x-helperText", "Example: /path/to/mission/data"),
-            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"), 
+            JsonSchemaExtension(
+                "x-label", "MissionDataPath_label",
+                "x-helperText", "Example: /path/to/mission/data"
+            ),
+            RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"),
             Required /* https://stackoverflow.com/a/32945086 */
     ]
     string MissionDataPath,
 
+    [property: JsonSchemaExtension("x-label", "Status_label")]
     RocketStatus Status,
 
+    [property: JsonSchemaExtension("x-label", "MissionTargets_label")]
     MissionTargets MissionTargets,
 
+    [property: JsonSchemaExtension("x-label", "MainPayload_label")]
     Payload MainPayload,
 
+    [property: JsonSchemaExtension("x-label", "AdditionalPayloads_label")]
     Payload[] AdditionalPayloads,
 
+    [property: JsonSchemaExtension("x-label", "LaunchCoordinates_label")]
     int[] LaunchCoordinates,
 
     [property: JsonSchemaExtension(
-        "x-keyLabel", "Vogon", 
+        "x-label", "BabelFishDictionary_label",
+        "x-keyLabel", "Vogon",
         "x-valueLabel", "English"
     )]
     Dictionary<string, string> BabelFishDictionary
@@ -130,49 +152,67 @@ public record Rocket(
 /// <param name="BabelFishDictionary">Babelfish dictionary @ dict of string and string</param>
 public record Rocket_Nullable(
 
-    [property: Range(0, 10)]
+    [property: Range(0, 10),
+               JsonSchemaExtension("x-label", "EngineCount_label")]
     int? EngineCount,
 
+    [property: JsonSchemaExtension("x-label", "HeadlightBrightness_label")]
     byte? HeadlightBrightness,
 
+    [property: JsonSchemaExtension("x-label", "ImprobabilityDriveFlux_label")]
     long? ImprobabilityDriveFlux,
 
+    [property: JsonSchemaExtension("x-label", "Storage_label")]
     ulong? Storage,
 
+    [property: JsonSchemaExtension("x-label", "AmbientTemperature_label")]
     float? AmbientTemperature,
 
+    [property: JsonSchemaExtension("x-label", "Fuel_label")]
     double? Fuel,
 
+    [property: JsonSchemaExtension("x-label", "EnableTelemetry_label")]
     bool? EnableTelemetry,
 
+    [property: JsonSchemaExtension("x-label", "FlightStart_label")]
     DateTime? FlightStart,
 
+    [property: JsonSchemaExtension("x-label", "FlightDuration_label")]
     TimeSpan? FlightDuration,
 
-    [property: StringLength(20)]
+    [property: StringLength(20),
+               JsonSchemaExtension("x-label", "Message_label")]
     string? Message,
 
     [
         property:
-            JsonSchemaExtension("x-helperText", "Example: /path/to/mission/data"),
+            JsonSchemaExtension(
+                "x-label", "MissionDataPath_label",
+                "x-helperText", "Example: /path/to/mission/data"
+            ),
             RegularExpression(@"^(?:\/[a-zA-Z_][a-zA-Z_0-9]*)+$"),
             Required /* https://stackoverflow.com/a/32945086 */
     ]
-
     string? MissionDataPath,
 
+    [property: JsonSchemaExtension("x-label", "Status_label")]
     RocketStatus? Status,
 
+    [property: JsonSchemaExtension("x-label", "MissionTargets_label")]
     MissionTargets? MissionTargets,
 
+    [property: JsonSchemaExtension("x-label", "MainPayload_label")]
     Payload? MainPayload,
 
+    [property: JsonSchemaExtension("x-label", "AdditionalPayloads_label")]
     Payload?[]? AdditionalPayloads,
 
+    [property: JsonSchemaExtension("x-label", "LaunchCoordinates_label")]
     int[]? LaunchCoordinates,
 
     [property: JsonSchemaExtension(
-        "x-keyLabel", "Vogon", 
+        "x-label", "BabelFishDictionary_label",
+        "x-keyLabel", "Vogon",
         "x-valueLabel", "English"
     )]
     Dictionary<string, string>? BabelFishDictionary
