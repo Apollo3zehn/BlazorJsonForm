@@ -1,10 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Components.Rendering
+@using Microsoft.Extensions.DependencyInjection
 @using NJsonSchema
 @using System.Text.Json.Nodes
 @using System.Text.Json
 @using System.Runtime.CompilerServices
 @using System.Numerics
 @using System.Text.RegularExpressions
+
+@inject IServiceProvider ServiceProvider
 
 <div style="display: flex; flex-direction: column;">
     @_renderFragement
@@ -81,6 +84,7 @@
     {
         var __builder = builder;
         isNullable |= schema.Type.HasFlag(JsonObjectType.Null);
+        label = GetLabel(schema, label);
 
         switch (schema.Type)
         {
@@ -445,7 +449,7 @@
 
             else
             {
-                var (keyLabel, valueLabel) = GetKeyValueLabelOrDefault(schema);
+                var (keyLabel, valueLabel) = GetKeyValueLabel(schema);
 
                 foreach (var (key, value) in data)
                 {
@@ -999,31 +1003,49 @@
 
     private string? GetHelperTextOrDefault(JsonSchema schema)
     {
-        return
-            schema.ExtensionData is not null &&
+        if (schema.ExtensionData != null &&
             schema.ExtensionData.TryGetValue("x-helperText", out var value) &&
-            value is string stringValue
-                ? stringValue
-                : default;
+            value is string stringValue )
+        {
+            var localizer = ServiceProvider?.GetService<IJsonFormLocalizer>();
+            return localizer?.GetString(stringValue) ?? stringValue;
+        }
+
+        return default;
     }
 
-    private (string, string) GetKeyValueLabelOrDefault(JsonSchema schema)
+    private (string, string) GetKeyValueLabel(JsonSchema schema)
     {
-        if (schema.ExtensionData is null)
-            return ("Key", "Value");
+        var localizer = ServiceProvider?.GetService<IJsonFormLocalizer>();
 
-        var keyLabel =
-            schema.ExtensionData.TryGetValue("x-keyLabel", out var value1) &&
-            value1 is string stringValue1
-                ? stringValue1
-                : "Key";
+        string Resolve(string key, string fallback)
+        {
+            if (schema.ExtensionData != null &&
+                schema.ExtensionData.TryGetValue( key, out var value ) &&
+                value is string stringValue)
+            {
+                return localizer?.GetString(stringValue) ?? stringValue;
+            }
 
-        var valueLabel =
-            schema.ExtensionData.TryGetValue("x-valueLabel", out var value2) &&
-            value2 is string stringValue2
-                ? stringValue2
-                : "Value";
+            return fallback;
+        }
 
-        return (keyLabel, valueLabel);
+        return (
+            Resolve("x-keyLabel", "Key"),
+            Resolve("x-valueLabel", "Value")
+        );
+    }
+
+    private string GetLabel(JsonSchema schema, string label)
+    {
+        if (schema.ExtensionData != null &&
+            schema.ExtensionData.TryGetValue("x-label", out var value) &&
+            value is string stringValue)
+        {
+            var localizer = ServiceProvider?.GetService<IJsonFormLocalizer>();
+            return localizer?.GetString(stringValue) ?? stringValue;
+        }
+
+        return label;
     }
 }
