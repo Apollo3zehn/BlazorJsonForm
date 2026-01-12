@@ -259,6 +259,39 @@ internal enum MissionTarget
 }
 ```
 
+### Enabling localization
+
+To enable localization, you only need to register an implementation of the following interface:
+
+```cs
+public interface IJsonFormLocalizer
+{
+    string GetString(string key);
+}
+```
+
+### Register it in your DI container using your existing localization system:
+
+builder.Services.AddScoped<IJsonFormLocalizer, Localizer>();
+
+
+> [!NOTE]
+> The Localizer implementation can internally use IStringLocalizer, resource files, databases, or any other localization mechanism you already have.
+
+### Localizing field labels
+
+To localize a field label, define an x-label extension on the corresponding property.
+
+```cs
+record RocketData(
+    [property: JsonSchemaExtension("x-label", "EngineCount_label")]
+    int EngineCount,
+
+    [property: JsonSchemaExtension("x-label", "Fuel_label")]
+    double Fuel
+);
+```
+
 # Known issues
 
 - When using `[RegularExpression]` attribute on a string property, `null` values are not supported anymore. This is because the library `NJsonSchema` which is used to generate the schema is treating a `[RegularExpression]` annotated property as non-nullable and so the schema does not carry nullability information anymore.
