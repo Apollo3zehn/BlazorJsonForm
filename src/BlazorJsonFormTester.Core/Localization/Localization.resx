@@ -166,10 +166,10 @@
     <value>Launch coordinates</value>
   </data>
   <data name="ImprobabilityDriveFlux_label" xml:space="preserve">
-    <value>ImprobabilityDriveFlux</value>
+    <value>Improbability drive flux</value>
   </data>
   <data name="MissionDataPath_label" xml:space="preserve">
-    <value>MissionDataPath</value>
+    <value>Mission data path</value>
   </data>
   <data name="BabelFishDictionary_label" xml:space="preserve">
     <value>Babel fish dictionary</value>

@@ -178,7 +178,7 @@ string FooBar { get; set; }
 
 ## Extras
 
-You can define a custom attrbute which will change the generated JSON schema as described below.
+You can define a custom attrbute to change the generated JSON schema as described below.
 
 The attribute definition may look like this:
 
@@ -189,12 +189,25 @@ internal class JsonSchemaExtensionAttribute(params string[] extensionData) : Att
     public IReadOnlyDictionary<string, object> ExtensionData { get; } = extensionData
         .Select((value, index) => new { PairNum = index / 2, value })
         .GroupBy(pair => pair.PairNum)
-        .Select(grp => grp.Select(g => g.value).ToArray())
+        .Select(group => group.Select(g => g.value).ToArray())
         .ToDictionary(x => x[0], x => (object)x[1]);
 }
 ```
 
-### Dictionary: Rename key and value
+### Rename field labels
+
+You can now use the newly defined `JsonSchemaExtensionAttribute` to define the field labels (via `x-label`) as follows:
+
+```cs
+record MyConfigurationType(
+    [property: JsonSchemaExtension("x-label", "EngineCount_label")]
+    string MissionDataPath,
+);
+```
+
+### Dictionary: Rename 'key' and 'value'
+
+It works similar for the key and value labels of a dictionary (via `x-keyLabel` and `x-valueLabel`):
 
 ```cs
 record MyConfigurationType(
@@ -208,7 +221,7 @@ record MyConfigurationType(
 
 ### Helper text
 
-Add a [helper text](https://mudblazor.com/components/textfield#form-props-helper-text) to inputs:
+Or you can add a [helper text](https://mudblazor.com/components/textfield#form-props-helper-text) to inputs via `x-helperText`:
 
 ```cs
 record MyConfigurationType(
@@ -259,7 +272,7 @@ internal enum MissionTarget
 }
 ```
 
-### Enabling localization
+### Localization
 
 To enable localization, you only need to register an implementation of the following interface:
 
@@ -270,17 +283,18 @@ public interface IJsonFormLocalizer
 }
 ```
 
-### Register it in your DI container using your existing localization system:
+Register it in your DI container using your existing localization system:
 
+```cs
 builder.Services.AddScoped<IJsonFormLocalizer, Localizer>();
-
+```
 
 > [!NOTE]
-> The Localizer implementation can internally use IStringLocalizer, resource files, databases, or any other localization mechanism you already have.
+> The Localizer implementation can internally use IStringLocalizer, resource files, databases, or any other localization mechanism you already have. It works for `x-label`, `x-keyLabel`, `x-valueLabel` and `x-helperText`.
 
-### Localizing field labels
+#### Example
 
-To localize a field label, define an x-label extension on the corresponding property.
+To localize a field label, define an x-label extension on the corresponding property and ensure that your implementation of `IJsonFormLocalizer` returns a proper value for the requested label key.
 
 ```cs
 record RocketData(

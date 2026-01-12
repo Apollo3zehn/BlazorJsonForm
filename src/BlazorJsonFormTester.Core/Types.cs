@@ -42,9 +42,9 @@ public enum MissionTargets
 /// <param name="Name">Name</param>
 /// <param name="Weight">Weight in kg</param>
 public record Payload(
-    [property: JsonSchemaExtension( "x-label", "Name_label" )]
+    [property: JsonSchemaExtension("x-label", "Name_label")]
     string Name,
-    [property: JsonSchemaExtension( "x-label", "Weight_label" )]
+    [property: JsonSchemaExtension("x-label", "Weight_label")]
     double Weight
 );
 
@@ -68,35 +68,35 @@ public record Payload(
 public record Rocket(
 
     [property: Range(0, 10),
-               JsonSchemaExtension( "x-label", "EngineCount_label" )]
+               JsonSchemaExtension("x-label", "EngineCount_label")]
     int EngineCount,
 
-    [property: JsonSchemaExtension( "x-label", "HeadlightBrightness_label" )]
+    [property: JsonSchemaExtension("x-label", "HeadlightBrightness_label")]
     byte HeadlightBrightness,
 
-    [property: JsonSchemaExtension( "x-label", "ImprobabilityDriveFlux_label" )]
+    [property: JsonSchemaExtension("x-label", "ImprobabilityDriveFlux_label")]
     long ImprobabilityDriveFlux,
 
-    [property: JsonSchemaExtension( "x-label", "Storage_label" )]
+    [property: JsonSchemaExtension("x-label", "Storage_label")]
     ulong Storage,
 
-    [property: JsonSchemaExtension( "x-label", "AmbientTemperature_label" )]
+    [property: JsonSchemaExtension("x-label", "AmbientTemperature_label")]
     float AmbientTemperature,
 
-    [property: JsonSchemaExtension( "x-label", "Fuel_label" )]
+    [property: JsonSchemaExtension("x-label", "Fuel_label")]
     double Fuel,
 
-    [property: JsonSchemaExtension( "x-label", "EnableTelemetry_label" )]
+    [property: JsonSchemaExtension("x-label", "EnableTelemetry_label")]
     bool EnableTelemetry,
 
-    [property: JsonSchemaExtension( "x-label", "FlightStart_label" )]
+    [property: JsonSchemaExtension("x-label", "FlightStart_label")]
     DateTime? FlightStart,
 
-    [property: JsonSchemaExtension( "x-label", "FlightDuration_label" )]
+    [property: JsonSchemaExtension("x-label", "FlightDuration_label")]
     TimeSpan FlightDuration,
 
     [property: StringLength(20),
-               JsonSchemaExtension( "x-label", "Message_label" )]
+               JsonSchemaExtension("x-label", "Message_label")]
     string Message,
 
     [
@@ -110,19 +110,19 @@ public record Rocket(
     ]
     string MissionDataPath,
 
-    [property: JsonSchemaExtension( "x-label", "Status_label" )]
+    [property: JsonSchemaExtension("x-label", "Status_label")]
     RocketStatus Status,
 
-    [property: JsonSchemaExtension( "x-label", "MissionTargets_label" )]
+    [property: JsonSchemaExtension("x-label", "MissionTargets_label")]
     MissionTargets MissionTargets,
 
-    [property: JsonSchemaExtension( "x-label", "MainPayload_label" )]
+    [property: JsonSchemaExtension("x-label", "MainPayload_label")]
     Payload MainPayload,
 
-    [property: JsonSchemaExtension( "x-label", "AdditionalPayloads_label" )]
+    [property: JsonSchemaExtension("x-label", "AdditionalPayloads_label")]
     Payload[] AdditionalPayloads,
 
-    [property: JsonSchemaExtension( "x-label", "LaunchCoordinates_label" )]
+    [property: JsonSchemaExtension("x-label", "LaunchCoordinates_label")]
     int[] LaunchCoordinates,
 
     [property: JsonSchemaExtension(
@@ -153,35 +153,35 @@ public record Rocket(
 public record Rocket_Nullable(
 
     [property: Range(0, 10),
-               JsonSchemaExtension( "x-label", "EngineCount_label" )]
+               JsonSchemaExtension("x-label", "EngineCount_label")]
     int? EngineCount,
 
-    [property: JsonSchemaExtension( "x-label", "HeadlightBrightness_label" )]
+    [property: JsonSchemaExtension("x-label", "HeadlightBrightness_label")]
     byte? HeadlightBrightness,
 
-    [property: JsonSchemaExtension( "x-label", "ImprobabilityDriveFlux_label" )]
+    [property: JsonSchemaExtension("x-label", "ImprobabilityDriveFlux_label")]
     long? ImprobabilityDriveFlux,
 
-    [property: JsonSchemaExtension( "x-label", "Storage_label" )]
+    [property: JsonSchemaExtension("x-label", "Storage_label")]
     ulong? Storage,
 
-    [property: JsonSchemaExtension( "x-label", "AmbientTemperature_label" )]
+    [property: JsonSchemaExtension("x-label", "AmbientTemperature_label")]
     float? AmbientTemperature,
 
-    [property: JsonSchemaExtension( "x-label", "Fuel_label" )]
+    [property: JsonSchemaExtension("x-label", "Fuel_label")]
     double? Fuel,
 
-    [property: JsonSchemaExtension( "x-label", "EnableTelemetry_label" )]
+    [property: JsonSchemaExtension("x-label", "EnableTelemetry_label")]
     bool? EnableTelemetry,
 
-    [property: JsonSchemaExtension( "x-label", "FlightStart_label" )]
+    [property: JsonSchemaExtension("x-label", "FlightStart_label")]
     DateTime? FlightStart,
 
-    [property: JsonSchemaExtension( "x-label", "FlightDuration_label" )]
+    [property: JsonSchemaExtension("x-label", "FlightDuration_label")]
     TimeSpan? FlightDuration,
 
     [property: StringLength(20),
-               JsonSchemaExtension( "x-label", "Message_label" )]
+               JsonSchemaExtension("x-label", "Message_label")]
     string? Message,
 
     [
@@ -195,19 +195,19 @@ public record Rocket_Nullable(
     ]
     string? MissionDataPath,
 
-    [property: JsonSchemaExtension( "x-label", "Status_label" )]
+    [property: JsonSchemaExtension("x-label", "Status_label")]
     RocketStatus? Status,
 
-    [property: JsonSchemaExtension( "x-label", "MissionTargets_label" )]
+    [property: JsonSchemaExtension("x-label", "MissionTargets_label")]
     MissionTargets? MissionTargets,
 
-    [property: JsonSchemaExtension( "x-label", "MainPayload_label" )]
+    [property: JsonSchemaExtension("x-label", "MainPayload_label")]
     Payload? MainPayload,
 
-    [property: JsonSchemaExtension( "x-label", "AdditionalPayloads_label" )]
+    [property: JsonSchemaExtension("x-label", "AdditionalPayloads_label")]
     Payload?[]? AdditionalPayloads,
 
-    [property: JsonSchemaExtension( "x-label", "LaunchCoordinates_label" )]
+    [property: JsonSchemaExtension("x-label", "LaunchCoordinates_label")]
     int[]? LaunchCoordinates,
 
     [property: JsonSchemaExtension(
