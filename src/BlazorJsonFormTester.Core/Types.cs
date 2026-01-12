@@ -3,7 +3,7 @@ namespace BlazorJsonFormTester;
 using BlazorJsonFormTester.Core.Localization;
 using System.ComponentModel.DataAnnotations;
 
-public enum RocketStatus : ushort
+public enum RocketStatus :ushort
 {
     Ready,
 
