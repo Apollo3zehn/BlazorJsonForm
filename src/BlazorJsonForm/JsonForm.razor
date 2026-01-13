@@ -567,8 +567,8 @@
 
                 <JsonFormTooltip Description="@schema.Description">
                     <MudText
-                    Style="flex: 1"
-                    Typo="Typo.caption">
+                        Style="flex: 1"
+                        Typo="Typo.caption">
                         @title
                     </MudText>
                 </JsonFormTooltip>
@@ -577,9 +577,9 @@
                 {
                     <MudTooltip Text="Set to null">
                         <MudIconButton
-                        OnClick="() => setValue?.Invoke(default)"
-                        Size="Size.Small"
-                        Icon="@Icons.Material.Filled.Clear" />
+                            OnClick="() => setValue?.Invoke(default)"
+                            Size="Size.Small"
+                            Icon="@Icons.Material.Filled.Clear" />
                     </MudTooltip>
                 }
 
@@ -593,9 +593,9 @@
             @if (data is null)
             {
                 <MudButton 
-                OnClick="() => setValue?.Invoke(new JsonArray())"
-                Variant="Variant.Outlined"
-                Color="Color.Primary">
+                    OnClick="() => setValue?.Invoke(new JsonArray())"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary">
                     Create
                 </MudButton>
             }
@@ -616,9 +616,8 @@
                                 @if (i_captured != 0)
                                 {
                                     <MudMenuItem
-                                    OnClick="() => MoveUp(data, i_captured)"
-                                    Icon="@Icons.Material.Filled.ArrowUpward"
-                                    IconSize="Size.Small">
+                                        OnClick="() => MoveUp(data, i_captured)"
+                                        Icon="@Icons.Material.Filled.ArrowUpward">
                                         Move up
                                     </MudMenuItem>
                                 }
@@ -626,17 +625,15 @@
                                 @if (i_captured != data.Count - 1)
                                 {
                                     <MudMenuItem
-                                    OnClick="() => MoveDown(data, i_captured)"
-                                    Icon="@Icons.Material.Filled.ArrowDownward"
-                                    IconSize="Size.Small">
+                                        OnClick="() => MoveDown(data, i_captured)"
+                                        Icon="@Icons.Material.Filled.ArrowDownward">
                                         Move down
                                     </MudMenuItem>
                                 }
 
                                 <MudMenuItem
-                                OnClick="() => Delete(data, i_captured)"
-                                Icon="@Icons.Material.Filled.Delete"
-                                IconSize="Size.Small">
+                                    OnClick="() => Delete(data, i_captured)"
+                                    Icon="@Icons.Material.Filled.Delete">
                                     Delete
                                 </MudMenuItem>
                             </MudMenu>
@@ -810,10 +807,21 @@
         IEnumerable<string> enumerationNames;
 
         if (schema.ExtensionData is not null &&
-            schema.ExtensionData.TryGetValue("x-enumDisplayNames", out var value) &&
-            value is string[] enumDisplayNames)
+            schema.ExtensionData.TryGetValue("x-enumDisplayNames", out var value))
         {
-            enumerationNames = enumDisplayNames;
+            // When schema is derived from type
+            if (value is string[] enumDisplayNames) {
+                enumerationNames = enumDisplayNames;
+            }
+
+            // When schema is loaded from json
+            else if (value is object[] enumDisplayNamesAsObject) {
+                enumerationNames = enumDisplayNamesAsObject.Select(x => x.ToString() ?? "null");
+            }
+
+            else {
+                enumerationNames = schema.EnumerationNames;
+            }
         }
 
         else
