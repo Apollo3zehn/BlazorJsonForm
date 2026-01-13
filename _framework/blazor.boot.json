@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "GitHubPages",
   "resources": {
-    "hash": "sha256-7FYhQN7/B4Fpr8hNXyroa/pGrFhzLUaV1HSdnvWozgQ=",
+    "hash": "sha256-bs2jZ7sXbrJKP6JLjUf0vpmjL/dKjR/AY+8rZCNDG8U=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Components.eckqlbdzkr.wasm": "Microsoft.AspNetCore.Components.wasm",
       "Microsoft.AspNetCore.Components.Forms.p4cmqynr10.wasm": "Microsoft.AspNetCore.Components.Forms.wasm",
@@ -72,10 +72,10 @@
       "System.t4d4s3f398.wasm": "System.wasm",
       "netstandard.y0sfl8cru3.wasm": "netstandard.wasm",
       "System.Private.CoreLib.yskzfkw2ch.wasm": "System.Private.CoreLib.wasm",
-      "BlazorJsonForm.i51l0gf7xr.wasm": "BlazorJsonForm.wasm",
-      "BlazorJsonFormTester.Core.b1mqr86ne2.wasm": "BlazorJsonFormTester.Core.wasm",
-      "GitHubPages.bd8ja5jfhc.wasm": "GitHubPages.wasm",
-      "BlazorJsonFormTester.Core.resources.4vaw9utkn8.wasm": "BlazorJsonFormTester.Core.resources.wasm",
+      "BlazorJsonForm.47ccv661ip.wasm": "BlazorJsonForm.wasm",
+      "BlazorJsonFormTester.Core.8suuerdja5.wasm": "BlazorJsonFormTester.Core.wasm",
+      "GitHubPages.g1p3yw9oj5.wasm": "GitHubPages.wasm",
+      "BlazorJsonFormTester.Core.resources.r7syi3r9h1.wasm": "BlazorJsonFormTester.Core.resources.wasm",
       "dotnet.js": "dotnet.js",
       "dotnet.native.noby4tlk4d.js": "dotnet.native.js",
       "dotnet.native.qe75a9vfqn.wasm": "dotnet.native.wasm",
@@ -170,13 +170,13 @@
       "System.Xml.XDocument.rq3uoqeade.wasm": "sha256-jXHocYVCS/ThppEaX8pR/Ky4h/AvzicYqHMda1gq83I=",
       "System.t4d4s3f398.wasm": "sha256-fVP2BxRRKpBA0PmBbKxmO45bXDrAXVn1GthlDclLbeU=",
       "netstandard.y0sfl8cru3.wasm": "sha256-Xu9Fi4JpRZnfokdZmIfWJG0JG3QqZZH6IxdSMmf18PE=",
-      "BlazorJsonForm.i51l0gf7xr.wasm": "sha256-6hZUcqbxwI3Tf07gr8ecCeEaehHv0WRngJwv7DdVWFQ=",
-      "BlazorJsonFormTester.Core.b1mqr86ne2.wasm": "sha256-8dL7/w6Q/WWHT7N2dsqxinXAaH//vaZQgq9VMq6PFLk=",
-      "GitHubPages.bd8ja5jfhc.wasm": "sha256-Hx/YZYBHaFwa1auIWkAtisrSJqy8CU56qLSh0vV92KY="
+      "BlazorJsonForm.47ccv661ip.wasm": "sha256-wL+BOdqniBBcwhxeqLUaEFDZYBvErywjw52CcpEjP8c=",
+      "BlazorJsonFormTester.Core.8suuerdja5.wasm": "sha256-qF5zK/WQ2wi+XY23fQ3Xwco2zNsPbHC8Jx5Gbf2cbIc=",
+      "GitHubPages.g1p3yw9oj5.wasm": "sha256-fOx8phjXAwegjYpJeLI5cvsWBGNe2ivtnvszE+tRx3s="
     },
     "satelliteResources": {
       "es": {
-        "BlazorJsonFormTester.Core.resources.4vaw9utkn8.wasm": "sha256-ALBF75oUxwdS6nyNCfMovUQkoPByRse23w67sm7FDm8="
+        "BlazorJsonFormTester.Core.resources.r7syi3r9h1.wasm": "sha256-V/HRIvkRJYMqSwimFbhm0dtP4MSx/UUoqC1ZxykEXl0="
       }
     }
   },
